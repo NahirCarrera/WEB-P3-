@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Horarios y Aulas</title>
+<style>
+body {
+    display: flex;
+    flex-direction: row;
+}
+#nrcs {
+    width: 20%;
+    background-color: #f0f0f0;
+    padding: 10px;
+}
+.aula {
+    display: none;
+    width: 80%;
+}
+.aula.active {
+    display: block;
+}
+table {
+    width: 100%;
+    border-collapse: collapse;
+    width: auto;
+}
+th, td {
+    border: 1px solid black;
+    text-align: center;
+    padding: 5px;
+    height: 50px;
+    width: 200px;
+}
+.nrc {
+    cursor: pointer;
+    background-color: green; /* Cambiado a azul */
+    color: white;
+    padding: 5px;
+    margin: 5px 0;
+    border-radius: 5px;
+}
+.nrc.dragging {
+    background-color: skyblue; /* Cambiado a verde */
+}
+.nrc.placed {
+    background-color: red; /* Cambiado a rosado */
+}
+/* Estilo para el botón del aula seleccionada */
+.selected {
+    background-color: blue;
+    color: white;
+}
+</style>
+</head>
+<body>
+<div id="nrcs"></div>
+<div>
+  <div id="botonesAula"></div>
+  <div id="aulas"></div>
+  <div id="contenedorAulaHorarios"></div>
+  
+  <input type="button" value="MostrarHorarios" onClick="mostrarAulaHorarios()">
+  <input type="button" value="InsertarHorarios" onClick="enviarFormularioAulaHorario()">
+  <input type="button" value="MostrarReservas" onClick="mostrarReservas()">
+  <input type="button" value="InsertarReservas" onClick="enviarFormularioReservas()">
+  <div id="contenedorReservas"></div>
+</div>
+<script>
+let dias = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes'];
+let nrcObjects = [];
+let aulaObjects = [];
+let horarioObjects = [];
+let aulaHorarioObjetcs = [];
+let reservaObjects = [];
+let colocadosIDs = [];
+let aulaHorarioIndex = 0;
+let placed = true;
+document.addEventListener('DOMContentLoaded', function() {
+	
+	fetchNRCs();
+    fetchAulas();
+	fetchHorarios();
+	obtenerReservasDesdeBase();
+});
+
+class NRC {
+    constructor(id, asignatura, docente, horario, carrera, periodo, codigo, nivel, horas_semanales) {
+        this.id = id;
+        this.asignatura = asignatura;
+        this.docente = docente;
+        this.horario = horario;
+        this.carrera = carrera;
+        this.periodo = periodo;
+        this.codigo = codigo;
+        this.nivel = nivel;
+        this.horas_semanales = horas_semanales;
+    }
+}
+    
+class Aula {
+    constructor(id, codigo, bloque, piso) {
+        this.id = id;
+        this.codigo = codigo;
+        this.bloque = bloque;
+        this.piso = piso;
+    }
+}
+
+class Horario {
+	constructor(id, inicio, fin){
+		this.id = id;
+		this.inicio = inicio;
+		this.fin = fin;
+	}
+}
+
+class AulaHorario {
+    constructor(id, aula, horario, estado, dia) {
+        this.id = id;
+		this.aula = aula; // Ahora es un objeto Aula
+        this.horario = horario; // Ahora es un objeto Horario
+        this.estado = estado;
+        this.dia = dia;
+    }
+}
+	
+class Reserva {
+	constructor(nrc, aulaHorario){
+		this.nrc = nrc;
+		this.aulaHorario = aulaHorario;
+	}
+}
+
+// Función para obtener los datos de Horarios y crear los objetos
+function fetchHorarios() {
+    return fetch('recolectarHorarios.php')
+        .then(response => response.json())
+        .then(data => {
+            horarioObjects = data.map(horario => new Horario(horario.id, horario.inicio, horario.fin));
+			generarAulas();
+        })
+        .catch(error => console.error('Error:', error));
+}
+	
+// Función para obtener los datos de NRCs y crear los objetos
+function fetchNRCs() {
+    return fetch('recolectar_informacion.php')
+        .then(response => response.json())
+        .then(data => {
+            nrcObjects = data.map(nrc => new NRC(nrc.id, nrc.asignatura, nrc.docente, nrc.horario, nrc.carrera, nrc.periodo, nrc.codigo, nrc.nivel, nrc.horas_semanales));
+            
+            // Generar y mostrar la lista de NRCs
+            generarNRCs();
+        })
+        .catch(error => console.error('Error:', error));
+}
+function generarNRCs() {
+    const contenedorNRCs = document.getElementById('nrcs');
+     nrcObjects.forEach((nrc, index) => {
+        // Verificar si el NRC actual ya está presente en alguna reserva
+        const estaEnReservas = reservaObjects.some(reserva => reserva.nrc.id === nrc.id);
+
+        if (!estaEnReservas) {
+            // Si el NRC no está en reservas, crear y añadir el div
+            const divNRC = document.createElement('div');
+            divNRC.draggable = true;
+            divNRC.classList.add('nrc');
+            divNRC.setAttribute('data-horas', nrc.horas_semanales);
+            divNRC.setAttribute('data-id', nrc.id);
+            divNRC.textContent = `NRC ${nrc.codigo} - ${nrc.horas_semanales + ' H'}`;
+            divNRC.id = `nrc-${index + 1}`;
+            divNRC.addEventListener('dragstart', dragStart);
+            divNRC.addEventListener('dragend', dragEnd);
+            contenedorNRCs.appendChild(divNRC);
+        } else {
+            // Si el NRC ya está en reservas, solo se actualiza la lista pero no se crea un div
+            // Aquí podrías realizar alguna otra acción si es necesario,
+            // por ejemplo, actualizar alguna otra lista o estado.
+        }
+    });
+}
+
+// Evento de arrastrar iniciado
+function dragStart(event) {
+    event.dataTransfer.setData('text/plain', event.target.id);
+    event.currentTarget.classList.add('dragging');
+}
+
+// Evento de arrastrar finalizado
+function dragEnd(event) {
+    event.currentTarget.classList.remove('dragging');
+}
+
+function generarBotonesAula(aulaObjects) {
+    const contenedorBotones = document.getElementById('botonesAula');
+    contenedorBotones.innerHTML = ''; // Limpia el contenedor antes de agregar nuevos botones
+
+    aulaObjects.forEach((aula, index) => {
+        const boton = document.createElement('button');
+        boton.textContent = `${aula.bloque} ${aula.codigo}`;
+        boton.addEventListener('click', function() {
+            mostrarAula(index); // Pasamos el índice al hacer clic
+        });
+        contenedorBotones.appendChild(boton);
+    });
+}
+
+function fetchAulas() {
+    return fetch('recolectarAulas.php')
+        .then(response => response.json())
+        .then(data => {
+            aulaObjects = data.map(aula => new Aula(aula.id, aula.codigo, aula.bloque, aula.piso));
+            generarBotonesAula(aulaObjects);
+        })
+        .catch(error => console.error('Error:', error));
+}
+
+function generarAulas() {
+	
+    const contenedorAulas = document.getElementById('aulas');
+    aulaHorarioObjetcs = []; // Reiniciamos el array para evitar duplicados en cada generación
+
+    aulaObjects.forEach((aula, indexAula) => {
+        const aulaDiv = document.createElement('div');
+        aulaDiv.classList.add('aula');
+        aulaDiv.id = `aula-${indexAula+1}`;
+
+        const tabla = document.createElement('table');
+        const thead = document.createElement('thead');
+        const trEncabezado = document.createElement('tr');
+        const thHora = document.createElement('th');
+        thHora.textContent = 'Hora/Día';
+        trEncabezado.appendChild(thHora);
+
+        dias.forEach(dia => {
+            const th = document.createElement('th');
+            th.textContent = dia;
+            trEncabezado.appendChild(th);
+        });
+
+        thead.appendChild(trEncabezado);
+        tabla.appendChild(thead);
+
+        const tbody = document.createElement('tbody');
+        horarioObjects.forEach((horario, indexHorario) => {
+            const tr = document.createElement('tr');
+            const tdHora = document.createElement('td');
+            tdHora.textContent = `${horario.inicio} - ${horario.fin}`;
+            tr.appendChild(tdHora);
+			
+            dias.forEach((dia, indexDia) => {
+                const td = document.createElement('td');
+                td.id = `aula-${indexAula+1}-dia-${indexDia}-hora-${horario.inicio.replace(':', '-')}`;
+                td.setAttribute('data-dia-index', indexDia);
+                td.addEventListener('dragover', dragOver);
+                td.addEventListener('drop', drop);
+                tr.appendChild(td);
+				
+				// Creación y almacenamiento del objeto AulaHorario
+				const aulaHorario = new AulaHorario(td.id, aula, horario, 0, dia);
+				aulaHorarioObjetcs.push(aulaHorario);  
+            });
+
+            tbody.appendChild(tr);
+        });
+
+        tabla.appendChild(tbody);
+        aulaDiv.appendChild(tabla);
+        contenedorAulas.appendChild(aulaDiv);
+		//mostrarAulaHorarios();
+    });
+}
+
+function mostrarAula(index) {
+    const aulas = document.querySelectorAll('.aula');
+    const botonesAula = document.querySelectorAll('#botonesAula button');
+    
+    aulas.forEach((aula, i) => {
+        aula.style.display = i === index ? 'block' : 'none'; // Cambiado a control de visualización
+    });
+    
+    // Reseteamos el estilo de todos los botones de aula
+    botonesAula.forEach(boton => {
+        boton.classList.remove('selected');
+    });
+
+    // Aplicamos el estilo al botón del aula seleccionada
+    botonesAula[index].classList.add('selected');
+}
+
+function dragStart(e) {
+    e.dataTransfer.setData('text/plain', e.target.id);
+    e.target.classList.add('dragging');
+}
+
+function dragEnd(e) {
+    e.target.classList.remove('dragging');
+}
+
+function dragOver(e) {
+    e.preventDefault();
+	e.currentTarget.classList.add('drop-hover');
+}
+
+
+
+function clonarYColocarNRCs(horas, diaIndexTarget, aulaId, idOriginal, horaInicio) {
+    // Convertimos la hora de inicio a un índice numérico para comparar con las horas de clase disponibles
+    const horaInicioSplit = horaInicio.split(':');
+    const horaInicioIndex = parseInt(horaInicioSplit[0]); // Tomamos la hora y la convertimos a entero
+
+    // Lógica para determinar los días para clonar en función de las horas del NRC
+    let diasParaClonar = [];
+	colocadosIDs = [];
+    switch (horas) {
+        case 2:
+            diasParaClonar = [diaIndexTarget];
+            break;
+        case 4:
+			// Ajustar para que si es jueves, se coloque en martes y jueves (días 1 y 3)
+			// Si es viernes, se coloque en miércoles y viernes (días 2 y 4)
+			// Para los demás casos, se usa la lógica original
+			if (diaIndexTarget === 3) { // Jueves
+				diasParaClonar = [1, 3]; // Martes y Jueves
+			} else if (diaIndexTarget === 4) { // Viernes
+				diasParaClonar = [2, 4]; // Miércoles y Viernes
+			} else {
+				// Lógica original ajustada para excluir la situación de jueves y viernes
+				diasParaClonar = diaIndexTarget + 2 <= 4 ? [diaIndexTarget, diaIndexTarget + 2] : [diaIndexTarget];
+			}
+    		break;
+
+        case 6:
+            diasParaClonar = [0, 2, 4];
+            break;
+        case 8:
+            diasParaClonar = diaIndexTarget < 1 ? [0, 1, 2, 3] : [1, 2, 3, 4];
+            break;
+        default:
+            console.error("Número de horas no soportado");
+            return;
+    }
+
+    // Validar si los días y horarios están ocupados
+    let espaciosDisponibles = true;
+    diasParaClonar.forEach(dia => {
+        const selector = `#${aulaId} td[id$='-dia-${dia}-hora-${horaInicio.replace(':', '-')}'`;
+        const tdTarget = document.querySelector(selector);
+        if (tdTarget && tdTarget.hasChildNodes()) {
+            espaciosDisponibles = false;
+        }
+    });
+
+    // Si todos los espacios están disponibles, clonar y colocar los NRCs
+    if (espaciosDisponibles) {
+        diasParaClonar.forEach(dia => {
+            const selector = `#${aulaId} td[id$='-dia-${dia}-hora-${horaInicio.replace(':', '-')}'`;
+            const tdTarget = document.querySelector(selector);
+            const clonNRC = document.getElementById(idOriginal).cloneNode(true);
+            let nuevoId = `${idOriginal}-clon-${dia}-${horaInicio.replace(':', '-')}`;
+            clonNRC.id = nuevoId;
+            tdTarget.appendChild(clonNRC);
+			
+            clonNRC.addEventListener('click', function() {
+                retornarNRC(clonNRC);
+            });
+			
+			// Aquí utilizamos el ID del 'td' (la casilla) para obtener el aulaHorario correspondiente
+			const idCasilla = tdTarget.id; // ID de la casilla donde se coloca el clon
+			const aulaHorario = obtenerAulaHorario(idCasilla);
+			if (aulaHorario) {
+				colocadosIDs.push(aulaHorario);
+			} else {
+				console.error("AulaHorario no encontrado para el ID: " + idCasilla);
+			}
+			
+        });
+
+        // Opcional: Deshabilitar el NRC original después de clonar
+		document.getElementById(idOriginal).removeEventListener('dragstart', dragStart);
+		document.getElementById(idOriginal).removeEventListener('dragend', dragEnd);
+		
+		const nrcDiv = document.getElementById(idOriginal);
+    	const idBusqueda = nrcDiv.getAttribute('data-id');
+		nrcObjectMatch = obtenerNRC(idBusqueda);
+		colocadosIDs.forEach((id_aula_horario) => {
+		let reserva = new Reserva(nrcObjectMatch, id_aula_horario);
+		reservaObjects.push(reserva);
+		}); 
+
+    } else {
+        console.error("Espacios no disponibles para clonación");
+        alert("No hay espacios disponibles en este horario para cubrir las horas de este nrc");
+        document.getElementById(idOriginal).classList.remove('placed');
+        placed = false;
+    }
+	
+
+}
+
+function drop(e) {
+    e.preventDefault();
+    const id = e.dataTransfer.getData('text/plain');
+    const nrcOriginal = document.getElementById(id);
+    const horas = parseInt(nrcOriginal.getAttribute('data-horas'));
+	
+    // Obtiene el índice del día y la hora específica del ID del elemento
+    const tdId = e.target.id; // "aula-1-dia-0-hora-07-00"
+    const splitId = tdId.split('-');
+    const diaIndexTarget = parseInt(splitId[3]);
+    const hora = splitId[5] + ':' + splitId[6]; // Reconstruyendo la hora "07:00"
+    const aulaId = e.target.closest('.aula').id; // Se obtiene el ID del aula donde se suelta el NRC
+	
+    // Lógica para clonar y colocar los NRCs según las horas
+    clonarYColocarNRCs(horas, diaIndexTarget, aulaId, id, hora); // Pasamos la hora como un nuevo parámetro
+	nrcOriginal.classList.remove('dragging'); // Asegúrate de quitar la clase 'dragging'
+    if(placed){
+	   nrcOriginal.classList.add('placed');
+	}else{
+		placed = true;
+	}
+	
+}
+
+function obtenerNRC(id){
+	return nrcObjects.find(nrcObj => nrcObj.id === id);
+}
+
+	
+function obtenerAulaHorario(id) {
+    return aulaHorarioObjetcs.find(aulaHorario => aulaHorario.id === id);
+}
+	
+function retornarNRC(nrc) {
+    
+    const idBase = nrc.id.split('-clon-')[0];
+    const clones = document.querySelectorAll(`[id^='${idBase}-clon']`);
+    clones.forEach(clone => clone.remove()); // Elimina todos los clones relacionados con este NRC
+
+    const nrcOriginal = document.getElementById(idBase);
+    
+    // Restaurar eventos de arrastrar y soltar al NRC original
+    nrcOriginal.addEventListener('dragstart', dragStart);
+    nrcOriginal.addEventListener('dragend', dragEnd);
+	nrcOriginal.classList.remove('placed'); // Asegúrate de quitar la clase 'dragging'
+	
+	const nrcDiv = document.getElementById(idBase);
+	const idBusqueda = nrcDiv.getAttribute('data-id');
+	const nrcObjectMatch = obtenerNRC(idBusqueda); // Asegúrate de que esta función devuelve el objeto NRC correcto
+
+	// Filtrar el arreglo reservaObjects para eliminar el objeto de reserva cuyo nrc.id coincide con nrcObjectMatch.id
+	reservaObjects = reservaObjects.filter(reserva => reserva.nrc.id !== nrcObjectMatch.id);
+
+}
+
+
+function mostrarAulaHorarios() {
+    const contenedorAulaHorarios = document.getElementById('contenedorAulaHorarios');
+    contenedorAulaHorarios.innerHTML = ''; // Limpiar contenido previo
+
+    const lista = document.createElement('ul');
+
+    aulaHorarioObjetcs.forEach(aulaHorario => {
+        const listItem = document.createElement('li');
+        listItem.textContent = `${aulaHorario.aula.codigo} - ${aulaHorario.horario.inicio} - ${aulaHorario.dia} - ${aulaHorario.estado} - ${aulaHorario.id} `;
+        lista.appendChild(listItem);
+    });
+
+    contenedorAulaHorarios.appendChild(lista);
+}
+
+async function enviarFormularioAulaHorario() {
+    for (let i = 0; i < aulaHorarioObjetcs.length; i++) {
+        const aulaHorario = aulaHorarioObjetcs[i];
+
+        // Actualizar los datos del formulario con el objeto actual
+        const formData = new FormData();
+        formData.append('horario', aulaHorario.horario.id);
+        formData.append('aula', aulaHorario.aula.id);
+        formData.append('estado', aulaHorario.estado);
+        formData.append('dia', aulaHorario.dia);
+
+        // Enviar la solicitud con los datos actualizados
+        await fetch('insertarAulasHorarios.php', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.text())
+        .then(data => console.log(data))
+        .catch(error => console.error('Error:', error));
+    }
+}
+
+async function enviarFormularioReservas() {
+    alert('Reservas totales: ' + reservaObjects.length);
+    for (let i = 0; i < reservaObjects.length; i++) {
+        const reserva = reservaObjects[i];
+        // Actualizar los datos del formulario con el objeto actual
+        const formDataReserva = new FormData();
+        formDataReserva.append('nrc', reserva.nrc.codigo);
+        formDataReserva.append('aula', reserva.aulaHorario.aula.id);
+        formDataReserva.append('horario', reserva.aulaHorario.horario.id);
+        formDataReserva.append('dia', reserva.aulaHorario.dia);
+        // Enviar la solicitud con los datos actualizados
+        await fetch('insertarReserva.php', {
+            method: 'POST',
+            body: formDataReserva
+        })
+        .then(response => response.text())
+        .then(data => console.log(data))
+        .catch(error => console.error('Error:', error));
+    }
+}
+
+
+function mostrarReservas() {
+    const contenedorReservas = document.getElementById('contenedorAulaHorarios');
+    contenedorReservas.innerHTML = ''; // Limpiar contenido previo
+
+    const lista = document.createElement('ul');
+	
+    reservaObjects.forEach(reserva => {
+        // Suponiendo que cada reserva tiene un NRC, un horario, un aula y un día asociados
+        const listItem = document.createElement('li');
+        listItem.textContent = `NRC: ${reserva.nrc.codigo} - Aula: ${reserva.aulaHorario.aula.codigo} - Día: ${reserva.aulaHorario.dia} - Hora: ${reserva.aulaHorario.horario.inicio}`;
+        lista.appendChild(listItem);
+    });
+
+    contenedorReservas.appendChild(lista);
+}
+
+function obtenerReservasDesdeBase() {
+    return fetch('obtenerReservas.php')
+        .then(response => response.json())
+        .then(data => {
+            // Iterar sobre los datos y crear las reservas
+            const reservas = data.map(reserva => {
+				const horario = horarioObjects.find(horario => 
+                    horario.id === reserva.horario
+                );
+				
+                // Encontrar el aulaHorario correspondiente
+				const selector = `aula-${'1'}-dia-${'1'}-hora-${horario.inicio.replace(':', '-')}`;
+				const tdTarget = document.querySelector(selector);
+				const idCasilla = tdTarget.id; // ID de la casilla donde se coloca el clon
+				const aulaHorario = obtenerAulaHorario(idCasilla);
+				
+                
+                
+                // Encontrar el objeto NRC correspondiente
+                const nrcObject = nrcObjects.find(nrcObject => nrcObject.id === reserva.nrc);
+                
+                // Verificar si se encontraron el aulaHorario y el NRC correspondientes
+                if (aulaHorario && nrcObject) {
+                    // Crear y retornar la reserva
+                    return new Reserva(nrcObject, aulaHorario);
+                } else {
+                    console.error('No se encontró el aulaHorario correspondiente para la reserva:', reserva);
+                    return null; // O podrías manejar esta situación de otra forma
+                }
+            });
+            
+            // Filtrar las reservas que pudieron ser creadas correctamente
+            const reservasValidas = reservas.filter(reserva => reserva !== null);
+            
+            // Agregar las reservas válidas al arreglo reservaObjects
+            reservaObjects.push(...reservasValidas);
+            
+            // Generar y mostrar la lista de reservas
+            mostrarReservas();
+        })
+        .catch(error => console.error('Error:', error));
+}
+
+</script>
+</body>
+</html>
