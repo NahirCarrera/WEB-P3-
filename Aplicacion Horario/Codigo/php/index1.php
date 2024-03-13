@@ -36,8 +36,14 @@ if (!isset($_SESSION['username'])) {
         }                                                                                                                                                                                                          
         table tr td:last-child a{                                                                                                                                                                                  
             margin-right: 5px;                                                                                                                                                                                     
-        }                                                                                                                                                                                                          
-    </style>                                                                                                                                                                                                       
-</head>                                                                                                                                                                                                            
+        }       
+    
+</style>                                                                                                                                                                                                       
+</head>   
+
+
+                                                                                                                                                                                                     
 <?php require_once('navbar.php'); ?>
+
+<iframe src="index.html" width="100%" height = "100%"></iframe>
 </html>  

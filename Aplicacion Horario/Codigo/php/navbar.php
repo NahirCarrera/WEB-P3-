@@ -86,7 +86,8 @@ $(document).ready(function(){
 
   // Manejar clic en elemento del menú desplegable de páginas
   $(document).on("click", "#navbarDropdown", function(){
-    $("#navbarDropdown").next('.dropdown-menu').slideToggle(); // Mostrar o ocultar el menú desplegable
+    //$("#navbarDropdown").next('.dropdown-menu').slideToggle(); // Mostrar o ocultar el menú desplegable
+    $(this).addClass("active").siblings().removeClass("active");
     $("#periodDropdownMenu").removeClass("show"); // Cerrar el menú desplegable de períodos
     $("#periodDropdownMenu").css("display", "none"); // Cambiar el estilo a display: none
   });
