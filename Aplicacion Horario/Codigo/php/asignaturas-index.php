@@ -1,3 +1,25 @@
+<?php
+// Iniciar sesión
+session_start();
+
+// Verificar si el usuario no está autenticado
+if (!isset($_SESSION['username'])) {
+    // Redirigir al usuario a la página de inicio de sesión
+    header("Location: ../index.html");
+    exit();
+}
+?>
+<?php
+// Iniciar sesión
+session_start();
+
+// Verificar si el usuario no está autenticado
+if (!isset($_SESSION['username'])) {
+    // Redirigir al usuario a la página de inicio de sesión
+    header("Location: ../index.html");
+    exit();
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -27,7 +49,7 @@
                         <h2 class="float-left">Agregar Asignaturas Details</h2>
                         <a href="asignaturas-create.php" class="btn btn-success float-right">Add New Record</a>
                         <a href="asignaturas-index.php" class="btn btn-info float-right mr-2">Reset View</a>
-                        <a href="index.php" class="btn btn-secondary float-right mr-2">Back</a>
+                        <a href="index1.php" class="btn btn-secondary float-right mr-2">Back</a>
                     </div>
 
                     <div class="form-row">
@@ -172,10 +194,48 @@
 <script src="https://code.jquery.com/jquery-3.5.1.min.js" integrity="sha256-9/aliU8dGd2tb6OSsuzixeV4y/faTqgFtohetphbbj0=" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js" integrity="sha384-OgVRvuATP1z7JjHLkuOU7Xw704+h835Lr+6QL9UvYjZE3Ipu6Tp75j7Bh/kR0JKI" crossorigin="anonymous"></script>
+     <!-- Script para mantener el período seleccionado -->
+     <script>
+    $(document).ready(function(){
+      // Cargar los períodos dinámicamente al cargar la página
+      $.get("get_periodos.php", function(data){
+        $("#periodDropdownMenu").html(data);
+        
+        // Obtener el período seleccionado de la URL y establecerlo como seleccionado en el menú
+        var urlParams = new URLSearchParams(window.location.search);
+        var selectedPeriod = urlParams.get('period');
+        if (selectedPeriod) {
+          $("#periodDropdown").text(selectedPeriod);
+          $("#periodDropdownMenu .dropdown-item").removeClass("active");
+          $("#periodDropdownMenu .dropdown-item:contains('" + selectedPeriod + "')").addClass("active");
+        }
+      });
+
+      // Manejar clic en elemento del menú desplegable de períodos
+      $(document).on("click", "#periodDropdownMenu .dropdown-item", function(){
+        var selectedPeriod = $(this).text();
+        $("#periodDropdown").text(selectedPeriod);
+        $(this).addClass("active").siblings().removeClass("active");
+        $("#periodDropdownMenu").removeClass("show"); // Cerrar el menú desplegable de períodos
+        $("#periodDropdownMenu").css("display", "none"); // Cambiar el estilo a display: none
+
+        // Actualizar el período seleccionado en los enlaces de página
+        $(".dropdown-menu a.dropdown-item").each(function() {
+          var pageLink = $(this);
+          var href = pageLink.attr("href");
+          var newHref = href.split("?")[0] + "?period=" + encodeURIComponent(selectedPeriod);
+          pageLink.attr("href", newHref);
+        });
+      });
+
+    });
+    </script>
+    
     <script type="text/javascript">
         $(document).ready(function(){
             $('[data-toggle="tooltip"]').tooltip();
         });
     </script>
+
 </body>
 </html>

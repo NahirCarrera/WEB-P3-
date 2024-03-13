@@ -1,4 +1,15 @@
 <?php
+// Iniciar sesión
+session_start();
+
+// Verificar si el usuario no está autenticado
+if (!isset($_SESSION['username'])) {
+    // Redirigir al usuario a la página de inicio de sesión
+    header("Location: ../index.html");
+    exit();
+}
+?>
+<?php
 // Check existence of id parameter before processing further
 $_GET["ID_aulas_horarios"] = trim($_GET["ID_aulas_horarios"]);
 if(isset($_GET["ID_aulas_horarios"]) && !empty($_GET["ID_aulas_horarios"])){

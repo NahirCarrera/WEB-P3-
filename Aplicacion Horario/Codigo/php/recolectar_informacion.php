@@ -1,3 +1,4 @@
+
 <?php
 // Incluir conexión a base de datos
 include 'config.php';

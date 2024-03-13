@@ -1,4 +1,15 @@
 <?php
+// Iniciar sesión
+session_start();
+
+// Verificar si el usuario no está autenticado
+if (!isset($_SESSION['username'])) {
+    // Redirigir al usuario a la página de inicio de sesión
+    header("Location: ../index.html");
+    exit();
+}
+?>
+<?php
 // Check existence of id parameter before processing further
 $_GET["ID_periodo"] = trim($_GET["ID_periodo"]);
 if(isset($_GET["ID_periodo"]) && !empty($_GET["ID_periodo"])){

@@ -20,11 +20,19 @@
   <div class="collapse navbar-collapse" id="navbarSupportedContent">
     <ul class="navbar-nav mr-auto">
       <li class="nav-item dropdown">
+        <a class="nav-link dropdown-toggle" href="#" id="periodDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+          Select Period
+        </a>
+        <div class="dropdown-menu" aria-labelledby="periodDropdown" id="periodDropdownMenu">
+          <!-- Aquí se mostrarán los períodos obtenidos desde get_periodos.php -->
+        </div>
+      </li>
+      <li class="nav-item dropdown">
         <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
           Select Page
         </a>
         <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-          <a href="asignaturas-index.php" class="dropdown-item">Agregar Asignaturas</a>                                                                                                                                                                                                
+           <a href="asignaturas-index.php" class="dropdown-item">Agregar Asignaturas</a>
           <a class="dropdown-item" href="asignaturas_vigentes-index.php">Relacionar  Asignaturas - Periodos</a>
           <a class="dropdown-item" href="aulas-index.php">Agregar Aulas</a>
           <a class="dropdown-item" href="aulas_disponibles-index.php">Relacionar Aulas - Periodos</a>
@@ -59,15 +67,43 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.6.0/js/bootstrap.bundle.min.js"></script>
 
-<!-- JavaScript para prevenir el comportamiento predeterminado del enlace -->
+<!-- JavaScript para cargar los períodos y manejar eventos de clic -->
 <script>
-  $(document).ready(function(){
-    $('.dropdown-toggle').click(function(e){
-      e.preventDefault();
-      $(this).next('.dropdown-menu').slideToggle();
-    });
+$(document).ready(function(){
+  // Cargar los períodos dinámicamente al cargar la página
+  $.get("get_periodos.php", function(data){
+    $("#periodDropdownMenu").html(data);
   });
-</script>
 
+  // Manejar clic en elemento del menú desplegable de períodos
+  $(document).on("click", "#periodDropdownMenu .dropdown-item", function(){
+    var selectedPeriod = $(this).text();
+    $("#periodDropdown").text(selectedPeriod);
+    $(this).addClass("active").siblings().removeClass("active");
+    $("#periodDropdownMenu").removeClass("show"); // Cerrar el menú desplegable de períodos
+    $("#periodDropdownMenu").css("display", "none"); // Cambiar el estilo a display: none
+  });
+
+  // Manejar clic en elemento del menú desplegable de páginas
+  $(document).on("click", "#navbarDropdown", function(){
+    $("#navbarDropdown").next('.dropdown-menu').slideToggle(); // Mostrar o ocultar el menú desplegable
+    $("#periodDropdownMenu").removeClass("show"); // Cerrar el menú desplegable de períodos
+    $("#periodDropdownMenu").css("display", "none"); // Cambiar el estilo a display: none
+  });
+
+  // Cerrar el menú desplegable al hacer clic fuera de él
+  $(document).on('click', function (e) {
+    if (!$(e.target).closest('.dropdown-toggle').length) {
+      $(".dropdown-menu").slideUp(); // Ocultar todos los menús desplegables
+    }
+  });
+
+  // Prevenir el comportamiento predeterminado del enlace
+  $('.dropdown-toggle').click(function(e){
+    e.preventDefault();
+    $(this).next('.dropdown-menu').slideToggle();
+  });
+});
+</script>
 </body>
 </html>

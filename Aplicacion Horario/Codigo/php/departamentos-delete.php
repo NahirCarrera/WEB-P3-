@@ -1,4 +1,15 @@
 <?php
+// Iniciar sesión
+session_start();
+
+// Verificar si el usuario no está autenticado
+if (!isset($_SESSION['username'])) {
+    // Redirigir al usuario a la página de inicio de sesión
+    header("Location: ../index.html");
+    exit();
+}
+?>
+<?php
 // Process delete operation after confirmation
 if(isset($_POST["ID_departamento"]) && !empty($_POST["ID_departamento"])){
     // Include config file

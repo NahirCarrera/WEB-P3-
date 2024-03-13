@@ -1,4 +1,15 @@
 <?php
+// Iniciar sesión
+session_start();
+
+// Verificar si el usuario no está autenticado
+if (!isset($_SESSION['username'])) {
+    // Redirigir al usuario a la página de inicio de sesión
+    header("Location: ../index.html");
+    exit();
+}
+?>
+<?php
 // Include config file
 require_once "config.php";
 require_once "helpers.php";
@@ -144,5 +155,40 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             </div>
         </div>
     </section>
+    <script>
+    $(document).ready(function(){
+      // Cargar los períodos dinámicamente al cargar la página
+      $.get("get_periodos.php", function(data){
+        $("#periodDropdownMenu").html(data);
+        
+        // Obtener el período seleccionado de la URL y establecerlo como seleccionado en el menú
+        var urlParams = new URLSearchParams(window.location.search);
+        var selectedPeriod = urlParams.get('period');
+        if (selectedPeriod) {
+          $("#periodDropdown").text(selectedPeriod);
+          $("#periodDropdownMenu .dropdown-item").removeClass("active");
+          $("#periodDropdownMenu .dropdown-item:contains('" + selectedPeriod + "')").addClass("active");
+        }
+      });
+
+      // Manejar clic en elemento del menú desplegable de períodos
+      $(document).on("click", "#periodDropdownMenu .dropdown-item", function(){
+        var selectedPeriod = $(this).text();
+        $("#periodDropdown").text(selectedPeriod);
+        $(this).addClass("active").siblings().removeClass("active");
+        $("#periodDropdownMenu").removeClass("show"); // Cerrar el menú desplegable de períodos
+        $("#periodDropdownMenu").css("display", "none"); // Cambiar el estilo a display: none
+
+        // Actualizar el período seleccionado en los enlaces de página
+        $(".dropdown-menu a.dropdown-item").each(function() {
+          var pageLink = $(this);
+          var href = pageLink.attr("href");
+          var newHref = href.split("?")[0] + "?period=" + encodeURIComponent(selectedPeriod);
+          pageLink.attr("href", newHref);
+        });
+      });
+
+    });
+    </script>
 </body>
 </html>
