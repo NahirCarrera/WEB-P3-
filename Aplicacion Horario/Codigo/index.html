@@ -9,18 +9,6 @@
     <title>Document</title>
 </head>
 <body>
-  <?php
-    session_start();
-
-    // Establecer el estado de loggedin como false
-    $_SESSION['loggedin'] = false;
-
-    // Destruir todas las demás variables de sesión
-    $_SESSION = array();
-
-    // Finalmente, destruir la sesión
-    session_destroy();
-    ?>
     <div class="wrapper">
         <form class="form-signin" action="php/login.php" method="post" autocomplete="off">       
           <h2 class="form-signin-heading centrar">Please login</h2>

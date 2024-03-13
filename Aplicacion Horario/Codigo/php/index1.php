@@ -1,16 +1,13 @@
 <?php
+// Iniciar sesión
 session_start();
 
-
-// Verificar si el usuario está autenticado
-if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true) {
-    // If not logged in, redirect to login page (and destroy session)
-    session_start(); // Start session again for destruction
-    $_SESSION = array();
-    session_destroy();
+// Verificar si el usuario no está autenticado
+if (!isset($_SESSION['username'])) {
+    // Redirigir al usuario a la página de inicio de sesión
     header("Location: ../index.html");
     exit();
-  }
+}
 ?>
 <html lang="en">                                                                                                                                                                                                   
 <head>                                                                                                                                                                                                             
