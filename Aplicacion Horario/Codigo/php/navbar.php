@@ -50,6 +50,7 @@
           <a class="dropdown-item" href="reserva_aula-index.php">Reservar Aula</a>
           <a class="dropdown-item" href="usuarios-index.php">Agregar Usuario</a>
           <a class="dropdown-item" href="novedades-index.php">Novedades</a>
+			<a class="dropdown-item" href="reportes.php">Reportes</a>
         </div>
       </li>
     </ul>
