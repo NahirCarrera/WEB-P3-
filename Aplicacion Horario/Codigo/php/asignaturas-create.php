@@ -24,7 +24,6 @@ function validar_asignatura($nombre) {
     // Verifica si la asignatura contiene solo letras mayúsculas
     return ctype_upper($nombre);
 }
-
 // Processing form data when form is submitted
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // Valida que todos los campos estén llenos
@@ -40,22 +39,24 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $codigo = trim($_POST["codigo"]);
         // Validar el formato del código
         if (!validar_codigo($codigo)) {
-            $codigo_err = "El código debe tener el formato A####.";
+            $codigo_err = "El código debe tener el formato A seguido de 4 números.";
         }
     }
 
     if (empty(trim($_POST["nombre"]))) {
         $nombre_err = "Por favor ingrese el nombre de la asignatura.";
     } else {
-        $nombre = trim($_POST["nombre"]);
-        // Validar que la asignatura solo contenga letras mayúsculas
-        if (!validar_asignatura($nombre)) {
-            $nombre_err = "El nombre de la asignatura debe contener solo letras mayúsculas.";
+        // Convertir el nombre a mayúsculas y aceptar espacios
+        $nombre = strtoupper(trim($_POST["nombre"]));
+        // Validar que la asignatura solo contenga letras mayúsculas y espacios
+        if (!preg_match('/^[A-Z\s]+$/', $nombre)) {
+            $nombre_err = "El nombre de la asignatura debe contener solo letras mayúsculas y espacios.";
         }
     }
 
-    // Si no hay errores, procede a insertar los datos en la base de datos
+    // Verifica si hay errores en cualquier campo
     if (empty($DEPARTAMENTOS_ID_departamento_err) && empty($codigo_err) && empty($nombre_err)) {
+        // Si no hay errores, procede a insertar los datos en la base de datos
         $dsn = "mysql:host=$db_server;dbname=$db_name;charset=utf8mb4";
         $options = [
           PDO::ATTR_EMULATE_PREPARES   => false, // turn off emulation mode for "real" prepared statements
@@ -79,6 +80,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             echo "Something went wrong. Please try again later.";
         }
     }
+
 }
 ?>
 

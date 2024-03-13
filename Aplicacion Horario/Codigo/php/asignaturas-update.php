@@ -25,6 +25,7 @@ function validar_asignatura($nombre) {
 }
 
 // Processing form data when form is submitted
+// Processing form data when form is submitted
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // Valida que todos los campos estén llenos
     if (empty(trim($_POST["DEPARTAMENTOS_ID_departamento"]))) {
@@ -46,10 +47,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if (empty(trim($_POST["nombre"]))) {
         $nombre_err = "Por favor ingrese el nombre de la asignatura.";
     } else {
-        $nombre = trim($_POST["nombre"]);
-        // Validar que la asignatura solo contenga letras mayúsculas
-        if (!validar_asignatura($nombre)) {
-            $nombre_err = "El nombre de la asignatura debe contener solo letras mayúsculas.";
+        // Convertir el nombre a mayúsculas y aceptar espacios
+        $nombre = strtoupper(trim($_POST["nombre"]));
+        // Validar que la asignatura solo contenga letras mayúsculas y espacios
+        if (!preg_match('/^[A-Z\s]+$/', $nombre)) {
+            $nombre_err = "El nombre de la asignatura debe contener solo letras mayúsculas y espacios.";
         }
     }
 
@@ -80,6 +82,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         }
     }
 }
+
 ?>
 
 <!DOCTYPE html>
