@@ -1,14 +1,26 @@
-
 <?php
 // Incluir conexión a base de datos
 include 'config.php';
 require_once "helpers.php";
 
+// Primero, encontrar el ID de periodo activo 
+$queryBuscarPeriodo = $link->prepare("SELECT ID_periodo FROM periodos WHERE estado = 1");
+
+$queryBuscarPeriodo->execute();
+$resultadoPeriodo = $queryBuscarPeriodo->get_result();
+
+if ($resultadoPeriodo->num_rows == 0) {
+    echo json_encode(['success' => false, 'message' => "No se encontró el periodo activo."]);
+    exit;
+}
+
+$filaPeriodo = $resultadoPeriodo->fetch_assoc();
+$ID_periodo = $filaPeriodo['ID_periodo'];
 
 // Consultar la base de datos para obtener los NRCs
 $query = "
 	SELECT 
-    n.id_nrc AS id, 
+    n.ID_NRC AS id, 
     a.nombre AS asignatura, 
     d.nombre AS docente, 
     h.ID_horario AS horario, 
@@ -27,7 +39,7 @@ INNER JOIN asignaturas a ON av.ASIGNATURAS_ID_asignatura = a.ID_asignatura
 INNER JOIN docentes d ON da.DOCENTES_ID_docente = d.ID_docente
 INNER JOIN horarios h ON hd.HORARIOS_ID_horario = h.ID_horario
 INNER JOIN carreras c ON cv.CARRERAS_ID_carrera = c.ID_carrera
-WHERE n.PERIODOS_ID_periodo = 1
+WHERE n.PERIODOS_ID_periodo = $ID_periodo
 
 ";
 $result = mysqli_query($link, $query);

@@ -1,15 +1,4 @@
 <?php
-// Iniciar sesión
-session_start();
-
-// Verificar si el usuario no está autenticado
-if (!isset($_SESSION['username'])) {
-    // Redirigir al usuario a la página de inicio de sesión
-    header("Location: ../index.html");
-    exit();
-}
-?>
-<?php
 include 'config.php';
 require_once "helpers.php";
 
@@ -20,13 +9,27 @@ $aula = $_POST['aula'];
 $estado = $_POST['estado'];
 $dia = $_POST['dia'];
 
+// Primero, encontrar el ID de periodo activo 
+$queryBuscarPeriodo = $link->prepare("SELECT ID_periodo FROM periodos WHERE estado = 1");
+
+$queryBuscarPeriodo->execute();
+$resultadoPeriodo = $queryBuscarPeriodo->get_result();
+
+if ($resultadoPeriodo->num_rows == 0) {
+    echo json_encode(['success' => false, 'message' => "No se encontró el periodo activo."]);
+    exit;
+}
+
+$filaPeriodo = $resultadoPeriodo->fetch_assoc();
+$ID_periodo = $filaPeriodo['ID_periodo'];
+
 // Primero, obtener los IDs correspondientes a los horarios y aulas disponibles
 $horarioDisponibleIDQuery = "SELECT ID_horario_disponible FROM horarios_disponibles hd 
                              INNER JOIN horarios h ON hd.HORARIOS_ID_horario = h.ID_horario 
-                             WHERE h.ID_horario = $horario AND hd.PERIODOS_ID_periodo = 1";
+                             WHERE h.ID_horario = $horario AND hd.PERIODOS_ID_periodo = $ID_periodo";
 $aulaDisponibleIDQuery = "SELECT ID_aula_disponible FROM aulas_disponibles ad 
                           INNER JOIN aulas a ON ad.AULAS_ID_aula = a.ID_aula 
-                          WHERE a.ID_aula = $aula AND ad.PERIODOS_ID_periodo = 1";
+                          WHERE a.ID_aula = $aula AND ad.PERIODOS_ID_periodo = $ID_periodo";
 
 $horarioDisponibleIDResult = mysqli_query($link, $horarioDisponibleIDQuery);
 $aulaDisponibleIDResult = mysqli_query($link, $aulaDisponibleIDQuery);
