@@ -33,21 +33,21 @@
         </a>
         <div class="dropdown-menu" aria-labelledby="navbarDropdown">
            <a href="asignaturas-index.php" class="dropdown-item">Agregar Asignaturas</a>
-          <a class="dropdown-item" href="asignaturas_vigentes-index.php">Relacionar  Asignaturas - Periodos</a>
+          
           <a class="dropdown-item" href="aulas-index.php">Agregar Aulas</a>
-          <a class="dropdown-item" href="aulas_disponibles-index.php">Relacionar Aulas - Periodos</a>
-          <a class="dropdown-item" href="aulas_horarios-index.php">Relacionar Aulas - Periodos - Días</a>
+          
+          
           <a class="dropdown-item" href="carreras-index.php">Agregar Carreras</a>
-          <a class="dropdown-item" href="carreras_vigentes-index.php">Relacionar Carreras - Periodos</a>
+          
           <a class="dropdown-item" href="departamentos-index.php">Agregar Departamentos</a>
           <a class="dropdown-item" href="docentes-index.php">Agregar Docentes</a>
-          <a class="dropdown-item" href="docentes_activos-index.php">Relacionar Docentes -  Periodos</a>
+          
           <a class="dropdown-item" href="horarios-index.php">Agregar Horarios</a>
-          <a class="dropdown-item" href="horarios_disponibles-index.php">Relacionar Horarios Periodos</a>
+          
           <a class="dropdown-item" href="nrcs-index.php">Agregar Cursos</a>
           <a class="dropdown-item" href="perfiles-index.php">Agregar Perfiles</a>
           <a class="dropdown-item" href="periodos-index.php">Agregar Periodos</a>
-          <a class="dropdown-item" href="reserva_aula-index.php">Reservar Aula</a>
+          
           <a class="dropdown-item" href="usuarios-index.php">Agregar Usuario</a>
           <a class="dropdown-item" href="novedades-index.php">Novedades</a>
 			<a class="dropdown-item" href="reportes.php">Reportes</a>
@@ -70,6 +70,8 @@
 
 <!-- JavaScript para cargar los períodos y manejar eventos de clic -->
 <script>
+
+
 $(document).ready(function(){
   // Cargar los períodos dinámicamente al cargar la página
   $.get("get_periodos.php", function(data){
@@ -78,9 +80,23 @@ $(document).ready(function(){
 
   // Manejar clic en elemento del menú desplegable de períodos
   $(document).on("click", "#periodDropdownMenu .dropdown-item", function(){
+    location.reload();
+    
   var selectedPeriod = $(this).text();
   var selectedPeriodId = $(this).data("id");
   console.log("ID del período seleccionado:", selectedPeriodId); // Imprimir el ID del período en la consola
+  $.ajax({
+      url: 'update_periodo.php',
+      type: 'POST',
+      data: { ID_periodo: selectedPeriodId },
+      success: function(response) {
+        console.log(response); // Puedes mostrar un mensaje de éxito aquí
+      },
+      error: function(xhr, status, error) {
+        console.error(error); // Manejar errores aquí
+      }
+    });
+
   //alert("ID del período seleccionado: " + selectedPeriodId); // Mostrar el ID del período en una alerta
   $("#periodDropdown").text(selectedPeriod);
   $(this).addClass("active").siblings().removeClass("active");

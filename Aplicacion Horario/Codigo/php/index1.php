@@ -41,9 +41,9 @@ if (!isset($_SESSION['username'])) {
 </style>                                                                                                                                                                                                       
 </head>   
 
-
-                                                                                                                                                                                                     
+                                                                                                                                                                                                    
 <?php require_once('navbar.php'); ?>
 
-<iframe src="index.html" width="100%" height = "100%"></iframe>
+<iframe id="miIframe" src="index.html" width="100%" height = "100%"></iframe>
+
 </html>  

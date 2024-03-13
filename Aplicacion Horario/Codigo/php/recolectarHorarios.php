@@ -1,19 +1,21 @@
 <?php
-// Iniciar sesión
-session_start();
-
-// Verificar si el usuario no está autenticado
-if (!isset($_SESSION['username'])) {
-    // Redirigir al usuario a la página de inicio de sesión
-    header("Location: ../index.html");
-    exit();
-}
-?>
-<?php
 // Incluir conexión a base de datos
 include 'config.php';
 require_once "helpers.php";
 
+// Primero, encontrar el ID de periodo activo 
+$queryBuscarPeriodo = $link->prepare("SELECT ID_periodo FROM periodos WHERE estado = 1");
+
+$queryBuscarPeriodo->execute();
+$resultadoPeriodo = $queryBuscarPeriodo->get_result();
+
+if ($resultadoPeriodo->num_rows == 0) {
+    echo json_encode(['success' => false, 'message' => "No se encontró el periodo activo."]);
+    exit;
+}
+
+$filaPeriodo = $resultadoPeriodo->fetch_assoc();
+$ID_periodo = $filaPeriodo['ID_periodo'];
 
 // Consultar la base de datos para obtener los NRCs
 $query = "
@@ -24,7 +26,7 @@ $query = "
 
 FROM horarios_disponibles hd
 INNER JOIN horarios h ON hd.HORARIOS_ID_horario = h.ID_horario
-WHERE hd.PERIODOS_ID_periodo = 1
+WHERE hd.PERIODOS_ID_periodo = $ID_periodo
 ";
 $result = mysqli_query($link, $query);
 

@@ -58,9 +58,7 @@ WHERE RESERVA_AULA_ID_reserva IN (
     FROM nrcs n
     INNER JOIN reserva_aula ra ON ra.NRCS_ID_NRC = n.ID_NRC
     WHERE n.PERIODOS_ID_periodo = $ID_periodo
-)
 );
-
 
 ");
 

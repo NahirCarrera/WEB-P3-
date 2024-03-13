@@ -1,15 +1,4 @@
 <?php
-// Iniciar sesión
-session_start();
-
-// Verificar si el usuario no está autenticado
-if (!isset($_SESSION['username'])) {
-    // Redirigir al usuario a la página de inicio de sesión
-    header("Location: ../index.html");
-    exit();
-}
-?>
-<?php
 // Incluir conexión a base de datos
 include 'config.php';
 require_once "helpers.php";
@@ -26,6 +15,8 @@ $queryBuscarNRC->bind_param("s", $codigoNRC);
 $queryBuscarNRC->execute();
 $resultadoNRC = $queryBuscarNRC->get_result();
 
+
+
 if ($resultadoNRC->num_rows == 0) {
     echo json_encode(['success' => false, 'message' => "No se encontró el NRC correspondiente."]);
     exit;
@@ -33,6 +24,7 @@ if ($resultadoNRC->num_rows == 0) {
 
 $filaNRC = $resultadoNRC->fetch_assoc();
 $nrcID = $filaNRC['ID_NRC'];
+
 
 // Luego, encontrar el ID de aula_horario que coincida con el aula, horario y día
 $queryBuscarID = $link->prepare("SELECT ID_aulas_horarios FROM aulas_horarios ah
@@ -52,6 +44,7 @@ if ($resultado->num_rows == 0) {
 
 $fila = $resultado->fetch_assoc();
 $aulaHorarioID = $fila['ID_aulas_horarios'];
+
 
 // Finalmente, insertar la reserva usando una consulta preparada
 $queryInsertar = $link->prepare("INSERT INTO reserva_aula (NRCS_ID_NRC, AULAS_HORARIOS_ID_aulas_horarios) VALUES (?, ?)");
