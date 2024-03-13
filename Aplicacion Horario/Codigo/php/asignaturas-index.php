@@ -46,16 +46,16 @@ if (!isset($_SESSION['username'])) {
             <div class="row">
                 <div class="col-md-12">
                     <div class="page-header clearfix">
-                        <h2 class="float-left">Agregar Asignaturas Details</h2>
-                        <a href="asignaturas-create.php" class="btn btn-success float-right">Add New Record</a>
-                        <a href="asignaturas-index.php" class="btn btn-info float-right mr-2">Reset View</a>
-                        <a href="index1.php" class="btn btn-secondary float-right mr-2">Back</a>
+                        <h2 class="float-left">Asignaturas</h2>
+                        <a href="asignaturas-create.php" class="btn btn-success float-right">Agregar</a>
+                        <a href="asignaturas-index.php" class="btn btn-info float-right mr-2">Refrescar</a>
+                        <a href="index1.php" class="btn btn-secondary float-right mr-2">Atrás</a>
                     </div>
 
                     <div class="form-row">
                         <form action="asignaturas-index.php" method="get">
                         <div class="col">
-                          <input type="text" class="form-control" placeholder="Search this table" name="search">
+                          <input type="text" class="form-control" placeholder="Buscar" name="search">
                         </div>
                     </div>
                         </form>
@@ -133,7 +133,7 @@ if (!isset($_SESSION['username'])) {
                                $total_pages = ceil(mysqli_num_rows($result_count) / $no_of_records_per_page);
                            }
                             $number_of_results = mysqli_num_rows($result_count);
-                            echo " " . $number_of_results . " results - Page " . $pageno . " of " . $total_pages;
+                            echo " " . $number_of_results . " resultados - Pag. " . $pageno . " de " . $total_pages;
 
                             echo "<table class='table table-bordered table-striped'>";
                                 echo "<thead>";
@@ -142,7 +142,7 @@ if (!isset($_SESSION['username'])) {
 										echo "<th><a href=?search=$search&sort=&order=codigo&sort=$sort>Código</th>";
 										echo "<th><a href=?search=$search&sort=&order=nombre&sort=$sort>Asignatura</th>";
 										
-                                        echo "<th>Action</th>";
+                                        echo "<th>Accción</th>";
                                     echo "</tr>";
                                 echo "</thead>";
                                 echo "<tbody>";
@@ -163,15 +163,15 @@ if (!isset($_SESSION['username'])) {
                                 <?php
                                     $new_url = preg_replace('/&?pageno=[^&]*/', '', $currenturl);
                                  ?>
-                                    <li class="page-item"><a class="page-link" href="<?php echo $new_url .'&pageno=1' ?>">First</a></li>
+                                    <li class="page-item"><a class="page-link" href="<?php echo $new_url .'&pageno=1' ?>">Primero</a></li>
                                     <li class="page-item <?php if($pageno <= 1){ echo 'disabled'; } ?>">
                                         <a class="page-link" href="<?php if($pageno <= 1){ echo '#'; } else { echo $new_url ."&pageno=".($pageno - 1); } ?>">Prev</a>
                                     </li>
                                     <li class="page-item <?php if($pageno >= $total_pages){ echo 'disabled'; } ?>">
-                                        <a class="page-link" href="<?php if($pageno >= $total_pages){ echo '#'; } else { echo $new_url . "&pageno=".($pageno + 1); } ?>">Next</a>
+                                        <a class="page-link" href="<?php if($pageno >= $total_pages){ echo '#'; } else { echo $new_url . "&pageno=".($pageno + 1); } ?>">Siguiente</a>
                                     </li>
                                     <li class="page-item <?php if($pageno >= $total_pages){ echo 'disabled'; } ?>">
-                                        <a class="page-item"><a class="page-link" href="<?php echo $new_url .'&pageno=' . $total_pages; ?>">Last</a>
+                                        <a class="page-item"><a class="page-link" href="<?php echo $new_url .'&pageno=' . $total_pages; ?>">Último</a>
                                     </li>
                                 </ul>
 <?php

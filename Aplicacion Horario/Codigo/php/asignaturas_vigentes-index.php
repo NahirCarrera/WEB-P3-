@@ -27,7 +27,7 @@
                         <h2 class="float-left">Relacionar  Asignaturas - Periodos Details</h2>
                         <a href="asignaturas_vigentes-create.php" class="btn btn-success float-right">Add New Record</a>
                         <a href="asignaturas_vigentes-index.php" class="btn btn-info float-right mr-2">Reset View</a>
-                        <a href="index.php" class="btn btn-secondary float-right mr-2">Back</a>
+                        <a href="index1.php" class="btn btn-secondary float-right mr-2">Back</a>
                     </div>
 
                     <div class="form-row">

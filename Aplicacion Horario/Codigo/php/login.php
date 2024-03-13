@@ -5,7 +5,7 @@ session_start();
 // Verificar si el usuario ya está logueado
 if (isset($_SESSION['username'])) {
     // Si el usuario ya está logueado, redirigirlo a la página de bienvenida
-    header("Location: logout.php");
+    header("Location: index1.php");
     exit();
 }
 

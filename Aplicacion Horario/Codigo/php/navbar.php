@@ -12,7 +12,7 @@
 <body>
 
 <nav class="navbar navbar-expand-lg navbar-light bg-light">
-  <a class="navbar-brand nav-link disabled" href="#">Horario</a>
+<a id="horarioLink" class="navbar-brand nav-link" href="#">Horario</a>
   <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
     <span class="navbar-toggler-icon"></span>
   </button>
@@ -21,7 +21,7 @@
     <ul class="navbar-nav mr-auto">
       <li class="nav-item dropdown">
         <a class="nav-link dropdown-toggle" href="#" id="periodDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-          Select Period
+          Periodos
         </a>
         <div class="dropdown-menu" aria-labelledby="periodDropdown" id="periodDropdownMenu">
           <!-- Aquí se mostrarán los períodos obtenidos desde get_periodos.php -->
@@ -29,7 +29,7 @@
       </li>
       <li class="nav-item dropdown">
         <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-          Select Page
+          Opciones
         </a>
         <div class="dropdown-menu" aria-labelledby="navbarDropdown">
            <a href="asignaturas-index.php" class="dropdown-item">Agregar Asignaturas</a>
@@ -103,6 +103,11 @@ $(document).ready(function(){
   $('.dropdown-toggle').click(function(e){
     e.preventDefault();
     $(this).next('.dropdown-menu').slideToggle();
+  });
+
+  $("#horarioLink").click(function(e) {
+    e.preventDefault(); // Evitar el comportamiento predeterminado del enlace
+    window.location.href = "index1.php"; // Redireccionar a index1.php
   });
 });
 </script>

@@ -38,7 +38,7 @@ if (!isset($_SESSION['username'])) {
                         <h2 class="float-left">Relacionar Horarios Periodos Details</h2>
                         <a href="horarios_disponibles-create.php" class="btn btn-success float-right">Add New Record</a>
                         <a href="horarios_disponibles-index.php" class="btn btn-info float-right mr-2">Reset View</a>
-                        <a href="index.php" class="btn btn-secondary float-right mr-2">Back</a>
+                        <a href="index1.php" class="btn btn-secondary float-right mr-2">Back</a>
                     </div>
 
                     <div class="form-row">
