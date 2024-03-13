@@ -1,17 +1,16 @@
 <?php
-// Check existence of id parameter before processing further
-$_GET["PERFILES_ID_perfil"] = trim($_GET["PERFILES_ID_perfil"]);
-if(isset($_GET["PERFILES_ID_perfil"]) && !empty($_GET["PERFILES_ID_perfil"])){
+// Process delete operation after confirmation
+if(isset($_POST["ID_usuario"]) && !empty($_POST["ID_usuario"])){
     // Include config file
     require_once "config.php";
     require_once "helpers.php";
 
-    // Prepare a select statement
-    $sql = "SELECT * FROM usuarios WHERE PERFILES_ID_perfil = ?";
+    // Prepare a delete statement
+    $sql = "DELETE FROM usuarios WHERE ID_usuario = ?";
 
     if($stmt = mysqli_prepare($link, $sql)){
         // Set parameters
-        $param_id = trim($_GET["PERFILES_ID_perfil"]);
+        $param_id = trim($_POST["ID_usuario"]);
 
         // Bind variables to the prepared statement as parameters
 		if (is_int($param_id)) $__vartype = "i";
@@ -22,18 +21,9 @@ if(isset($_GET["PERFILES_ID_perfil"]) && !empty($_GET["PERFILES_ID_perfil"])){
 
         // Attempt to execute the prepared statement
         if(mysqli_stmt_execute($stmt)){
-            $result = mysqli_stmt_get_result($stmt);
-
-            if(mysqli_num_rows($result) == 1){
-                /* Fetch result row as an associative array. Since the result set
-                contains only one row, we don't need to use while loop */
-                $row = mysqli_fetch_array($result, MYSQLI_ASSOC);
-            } else{
-                // URL doesn't contain valid id parameter. Redirect to error page
-                header("location: error.php");
-                exit();
-            }
-
+            // Records deleted successfully. Redirect to landing page
+            header("location: usuarios-index.php");
+            exit();
         } else{
             echo "Oops! Something went wrong. Please try again later.<br>".$stmt->error;
         }
@@ -45,9 +35,13 @@ if(isset($_GET["PERFILES_ID_perfil"]) && !empty($_GET["PERFILES_ID_perfil"])){
     // Close connection
     mysqli_close($link);
 } else{
-    // URL doesn't contain id parameter. Redirect to error page
-    header("location: error.php");
-    exit();
+    // Check existence of id parameter
+	$_GET["ID_usuario"] = trim($_GET["ID_usuario"]);
+    if(empty($_GET["ID_usuario"])){
+        // URL doesn't contain id parameter. Redirect to error page
+        header("location: error.php");
+        exit();
+    }
 }
 ?>
 <!DOCTYPE html>
@@ -62,23 +56,20 @@ if(isset($_GET["PERFILES_ID_perfil"]) && !empty($_GET["PERFILES_ID_perfil"])){
     <section class="pt-5">
         <div class="container-fluid">
             <div class="row">
-                <div class="col-md-8 mx-auto">
+                <div class="col-md-6 mx-auto">
                     <div class="page-header">
-                        <h1>View Record</h1>
+                        <h1>Delete Record</h1>
                     </div>
-
-                     <div class="form-group">
-                            <h4>Nombre de usuario</h4>
-                            <p class="form-control-static"><?php echo htmlspecialchars($row["nombre"]); ?></p>
-                        </div><div class="form-group">
-                            <h4>Contraseña</h4>
-                            <p class="form-control-static"><?php echo htmlspecialchars($row["contraseña"]); ?></p>
-                        </div><div class="form-group">
-                            <h4>Perfil</h4>
-                            <p class="form-control-static"><?php echo htmlspecialchars($row["PERFILES_ID_perfil"]); ?></p>
+                    <form action="<?php echo htmlspecialchars($_SERVER['PHP_SELF']); ?>" method="post">
+                        <div class="alert alert-danger fade-in">
+                            <input type="hidden" name="ID_usuario" value="<?php echo trim($_GET["ID_usuario"]); ?>"/>
+                            <p>Are you sure you want to delete this record?</p><br>
+                            <p>
+                                <input type="submit" value="Yes" class="btn btn-danger">
+                                <a href="usuarios-index.php" class="btn btn-secondary">No</a>
+                            </p>
                         </div>
-
-                    <p><a href="usuarios-index.php" class="btn btn-primary">Back</a></p>
+                    </form>
                 </div>
             </div>
         </div>

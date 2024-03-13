@@ -68,7 +68,7 @@
 
                     //Column sorting on column name
                     $orderBy = array('nombre', 'contraseña', 'PERFILES_ID_perfil');
-                    $order = 'PERFILES_ID_perfil';
+                    $order = 'ID_usuario';
                     if (isset($_GET['order']) && in_array($_GET['order'], $orderBy)) {
                             $order = $_GET['order'];
                         }
@@ -128,9 +128,9 @@
                                     echo "<tr>";
                                     echo "<td>" . htmlspecialchars($row['nombre']) . "</td>";echo "<td>" . htmlspecialchars($row['contraseña']) . "</td>";echo "<td>" . htmlspecialchars($row['PERFILES_ID_perfil']) . "</td>";
                                         echo "<td>";
-                                            echo "<a href='usuarios-read.php?PERFILES_ID_perfil=". $row['PERFILES_ID_perfil'] ."' title='View Record' data-toggle='tooltip'><i class='far fa-eye'></i></a>";
-                                            echo "<a href='usuarios-update.php?PERFILES_ID_perfil=". $row['PERFILES_ID_perfil'] ."' title='Update Record' data-toggle='tooltip'><i class='far fa-edit'></i></a>";
-                                            echo "<a href='usuarios-delete.php?PERFILES_ID_perfil=". $row['PERFILES_ID_perfil'] ."' title='Delete Record' data-toggle='tooltip'><i class='far fa-trash-alt'></i></a>";
+                                            echo "<a href='usuarios-read.php?ID_usuario=". $row['ID_usuario'] ."' title='View Record' data-toggle='tooltip'><i class='far fa-eye'></i></a>";
+                                            echo "<a href='usuarios-update.php?ID_usuario=". $row['ID_usuario'] ."' title='Update Record' data-toggle='tooltip'><i class='far fa-edit'></i></a>";
+                                            echo "<a href='usuarios-delete.php?ID_usuario=". $row['ID_usuario'] ."' title='Delete Record' data-toggle='tooltip'><i class='far fa-trash-alt'></i></a>";
                                         echo "</td>";
                                     echo "</tr>";
                                 }

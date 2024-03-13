@@ -1,13 +1,5 @@
 <?php
-// Iniciar sesión
 session_start();
-
-// Verificar si el usuario ya está logueado
-if (isset($_SESSION['username'])) {
-    // Si el usuario ya está logueado, redirigirlo a la página de bienvenida
-    header("Location: index1.php");
-    exit();
-}
 
 // Incluir el archivo que contiene la conexión a la base de datos
 include_once('mySqli.php');
@@ -33,18 +25,21 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             // Credenciales válidas, el usuario está autenticado
 
             // Iniciar sesión y almacenar información del usuario
+            $_SESSION['loggedin'] = true;
             $_SESSION['username'] = $username;
 
             // Redirigir al usuario a una página de inicio de sesión exitosa
-            header("Location: index1.php");
+            header("Location: ../index1.php");
             exit();
         } else {
-            // Credenciales inválidas, mostrar un mensaje de error
-            echo "Nombre de usuario o contraseña incorrectos.";
+            // Credenciales inválidas, redirigir al index con un mensaje de error
+            header("Location: ../index.html?error=credenciales");
+            exit();
         }
     } else {
-        // Credenciales inválidas, mostrar un mensaje de error
-        echo "Nombre de usuario o contraseña incorrectos.";
+        // Credenciales inválidas, redirigir al index con un mensaje de error
+        header("Location: ../index.html?error=credenciales");
+        exit();
     }
 
     // Cerrar la conexión a la base de datos
