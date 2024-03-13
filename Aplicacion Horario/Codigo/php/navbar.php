@@ -77,13 +77,15 @@ $(document).ready(function(){
 
   // Manejar clic en elemento del menú desplegable de períodos
   $(document).on("click", "#periodDropdownMenu .dropdown-item", function(){
-    var selectedPeriod = $(this).text();
-    $("#periodDropdown").text(selectedPeriod);
-    $(this).addClass("active").siblings().removeClass("active");
-    $("#periodDropdownMenu").removeClass("show"); // Cerrar el menú desplegable de períodos
-    $("#periodDropdownMenu").css("display", "none"); // Cambiar el estilo a display: none
-    
-  });
+  var selectedPeriod = $(this).text();
+  var selectedPeriodId = $(this).data("id");
+  console.log("ID del período seleccionado:", selectedPeriodId); // Imprimir el ID del período en la consola
+  //alert("ID del período seleccionado: " + selectedPeriodId); // Mostrar el ID del período en una alerta
+  $("#periodDropdown").text(selectedPeriod);
+  $(this).addClass("active").siblings().removeClass("active");
+  $("#periodDropdownMenu").removeClass("show"); // Cerrar el menú desplegable de períodos
+  $("#periodDropdownMenu").css("display", "none"); // Cambiar el estilo a display: none
+});
 
   // Manejar clic en elemento del menú desplegable de páginas
   $(document).on("click", "#navbarDropdown", function(){
