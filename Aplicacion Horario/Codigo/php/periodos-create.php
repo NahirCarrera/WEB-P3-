@@ -4,48 +4,68 @@ require_once "config.php";
 require_once "helpers.php";
 
 // Define variables and initialize with empty values
-$codigo = "";
-$nombre = "";
-$fecha_inicio = "";
-$fecha_fin = "";
-
-$codigo_err = "";
-$nombre_err = "";
-$fecha_inicio_err = "";
-$fecha_fin_err = "";
-
+$codigo = $nombre = $fecha_inicio = $fecha_fin = "";
+$codigo_err = $nombre_err = $fecha_inicio_err = $fecha_fin_err = "";
 
 // Processing form data when form is submitted
-if($_SERVER["REQUEST_METHOD"] == "POST"){
+if($_SERVER["REQUEST_METHOD"] == "POST") {
+    // Validate codigo
+    if(empty(trim($_POST["codigo"]))) {
+        $codigo_err = "Please enter a codigo.";
+    } elseif(!ctype_digit($_POST["codigo"])) {
+        $codigo_err = "Código must contain only numbers.";
+    } else {
         $codigo = trim($_POST["codigo"]);
-		$nombre = trim($_POST["nombre"]);
-		$fecha_inicio = trim($_POST["fecha_inicio"]);
-		$fecha_fin = trim($_POST["fecha_fin"]);
-		
+    }
+    
+    // Validate nombre
+    if(empty(trim($_POST["nombre"]))) {
+        $nombre_err = "Please enter a nombre.";     
+    } elseif(!preg_match('/^[a-zA-Z]+$/', trim($_POST["nombre"]))) {
+        $nombre_err = "Periodo must contain only letters.";
+    } else {
+        $nombre = trim($_POST["nombre"]);
+    }
+    
+    // Validate fecha_inicio
+    if(empty(trim($_POST["fecha_inicio"]))) {
+        $fecha_inicio_err = "Please enter a fecha de inicio.";     
+    } else {
+        $fecha_inicio = trim($_POST["fecha_inicio"]);
+    }
+    
+    // Validate fecha_fin
+    if(empty(trim($_POST["fecha_fin"]))) {
+        $fecha_fin_err = "Please enter a fecha de finalización.";     
+    } else {
+        $fecha_fin = trim($_POST["fecha_fin"]);
+    }
 
+    // Check input errors before inserting into database
+    if(empty($codigo_err) && empty($nombre_err) && empty($fecha_inicio_err) && empty($fecha_fin_err)) {
         $dsn = "mysql:host=$db_server;dbname=$db_name;charset=utf8mb4";
         $options = [
-          PDO::ATTR_EMULATE_PREPARES   => false, // turn off emulation mode for "real" prepared statements
-          PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION, //turn on errors in the form of exceptions
-          PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC, //make the default fetch be an associative array
+          PDO::ATTR_EMULATE_PREPARES   => false,
+          PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
+          PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
         ];
         try {
           $pdo = new PDO($dsn, $db_user, $db_password, $options);
         } catch (Exception $e) {
           error_log($e->getMessage());
-          exit('Something weird happened'); //something a user can understand
+          exit('Something weird happened');
         }
 
         $vars = parse_columns('periodos', $_POST);
         $stmt = $pdo->prepare("INSERT INTO periodos (codigo,nombre,fecha_inicio,fecha_fin) VALUES (?,?,?,?)");
 
-        if($stmt->execute([ $codigo,$nombre,$fecha_inicio,$fecha_fin  ])) {
-                $stmt = null;
-                header("location: periodos-index.php");
-            } else{
-                echo "Something went wrong. Please try again later.";
-            }
-
+        if($stmt->execute([$codigo, $nombre, $fecha_inicio, $fecha_fin])) {
+            $stmt = null;
+            header("location: periodos-index.php");
+        } else{
+            echo "Something went wrong. Please try again later.";
+        }
+    }
 }
 ?>
 
@@ -69,25 +89,28 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
                     <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="post">
 
                         <div class="form-group">
-                                <label>Código</label>
-                                <input type="text" name="codigo" maxlength="6"class="form-control" value="<?php echo $codigo; ?>">
-                                <span class="form-text"><?php echo $codigo_err; ?></span>
-                            </div>
-						<div class="form-group">
-                                <label>Periodo</label>
-                                <input type="text" name="nombre" maxlength="45"class="form-control" value="<?php echo $nombre; ?>">
-                                <span class="form-text"><?php echo $nombre_err; ?></span>
-                            </div>
-						<div class="form-group">
-                                <label>Fecha de inicio</label>
-                                <input type="date" name="fecha_inicio" class="form-control" value="<?php echo $fecha_inicio; ?>">
-                                <span class="form-text"><?php echo $fecha_inicio_err; ?></span>
-                            </div>
-						<div class="form-group">
-                                <label>Fecha de finalización</label>
-                                <input type="date" name="fecha_fin" class="form-control" value="<?php echo $fecha_fin; ?>">
-                                <span class="form-text"><?php echo $fecha_fin_err; ?></span>
-                            </div>
+                            <label>Código</label>
+                            <input type="text" name="codigo" maxlength="6" class="form-control" value="<?php echo htmlspecialchars($codigo); ?>">
+                            <span class="form-text"><?php echo $codigo_err; ?></span>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Periodo</label>
+                            <input type="text" name="nombre" maxlength="45" class="form-control" value="<?php echo htmlspecialchars(strtoupper($nombre)); ?>">
+                            <span class="form-text"><?php echo $nombre_err; ?></span>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Fecha de inicio</label>
+                            <input type="date" name="fecha_inicio" class="form-control" value="<?php echo htmlspecialchars($fecha_inicio); ?>">
+                            <span class="form-text"><?php echo $fecha_inicio_err; ?></span>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Fecha de finalización</label>
+                            <input type="date" name="fecha_fin" class="form-control" value="<?php echo htmlspecialchars($fecha_fin); ?>">
+                            <span class="form-text"><?php echo $fecha_fin_err; ?></span>
+                        </div>
 
                         <input type="submit" class="btn btn-primary" value="Submit">
                         <a href="periodos-index.php" class="btn btn-secondary">Cancel</a>

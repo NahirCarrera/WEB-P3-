@@ -5,83 +5,86 @@ require_once "helpers.php";
 
 // Define variables and initialize with empty values
 $nombre = "";
-
 $nombre_err = "";
 
-
 // Processing form data when form is submitted
-if(isset($_POST["ID_carrera"]) && !empty($_POST["ID_carrera"])){
-    // Get hidden input value
-    $ID_carrera = $_POST["ID_carrera"];
-
-    $nombre = trim($_POST["nombre"]);
-		
-
-    // Prepare an update statement
-    $dsn = "mysql:host=$db_server;dbname=$db_name;charset=utf8mb4";
-    $options = [
-        PDO::ATTR_EMULATE_PREPARES   => false, // turn off emulation mode for "real" prepared statements
-        PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION, //turn on errors in the form of exceptions
-        PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC, //make the default fetch be an associative array
-    ];
-    try {
-        $pdo = new PDO($dsn, $db_user, $db_password, $options);
-    } catch (Exception $e) {
-        error_log($e->getMessage());
-        exit('Something weird happened');
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    // Validate nombre
+    if (empty(trim($_POST["nombre"]))) {
+        $nombre_err = "Por favor ingresa el nombre de la carrera.";
+    } else {
+        $nombre = trim($_POST["nombre"]);
     }
 
-    $vars = parse_columns('carreras', $_POST);
-    $stmt = $pdo->prepare("UPDATE carreras SET nombre=? WHERE ID_carrera=?");
+    // Check input errors before updating the database
+    if (empty($nombre_err)) {
+        // Get hidden input value
+        $ID_carrera = $_POST["ID_carrera"];
 
-    if(!$stmt->execute([ $nombre,$ID_carrera  ])) {
-        echo "Something went wrong. Please try again later.";
-        header("location: error.php");
-    } else {
-        $stmt = null;
-        header("location: carreras-read.php?ID_carrera=$ID_carrera");
+        // Prepare an update statement
+        $dsn = "mysql:host=$db_server;dbname=$db_name;charset=utf8mb4";
+        $options = [
+            PDO::ATTR_EMULATE_PREPARES   => false, // turn off emulation mode for "real" prepared statements
+            PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION, //turn on errors in the form of exceptions
+            PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC, //make the default fetch be an associative array
+        ];
+        try {
+            $pdo = new PDO($dsn, $db_user, $db_password, $options);
+        } catch (Exception $e) {
+            error_log($e->getMessage());
+            exit('Something weird happened');
+        }
+
+        $vars = parse_columns('carreras', $_POST);
+        $stmt = $pdo->prepare("UPDATE carreras SET nombre=? WHERE ID_carrera=?");
+
+        if (!$stmt->execute([$nombre, $ID_carrera])) {
+            echo "Something went wrong. Please try again later.";
+            header("location: error.php");
+            exit();
+        } else {
+            $stmt = null;
+            header("location: carreras-read.php?ID_carrera=$ID_carrera");
+            exit();
+        }
     }
 } else {
     // Check existence of id parameter before processing further
-	$_GET["ID_carrera"] = trim($_GET["ID_carrera"]);
-    if(isset($_GET["ID_carrera"]) && !empty($_GET["ID_carrera"])){
+    $_GET["ID_carrera"] = trim($_GET["ID_carrera"]);
+    if (isset($_GET["ID_carrera"]) && !empty($_GET["ID_carrera"])) {
         // Get URL parameter
-        $ID_carrera =  trim($_GET["ID_carrera"]);
+        $ID_carrera = trim($_GET["ID_carrera"]);
 
         // Prepare a select statement
         $sql = "SELECT * FROM carreras WHERE ID_carrera = ?";
-        if($stmt = mysqli_prepare($link, $sql)){
+        if ($stmt = mysqli_prepare($link, $sql)) {
             // Set parameters
             $param_id = $ID_carrera;
 
             // Bind variables to the prepared statement as parameters
-			if (is_int($param_id)) $__vartype = "i";
-			elseif (is_string($param_id)) $__vartype = "s";
-			elseif (is_numeric($param_id)) $__vartype = "d";
-			else $__vartype = "b"; // blob
-			mysqli_stmt_bind_param($stmt, $__vartype, $param_id);
+            if (is_int($param_id)) $__vartype = "i";
+            elseif (is_string($param_id)) $__vartype = "s";
+            elseif (is_numeric($param_id)) $__vartype = "d";
+            else $__vartype = "b"; // blob
+            mysqli_stmt_bind_param($stmt, $__vartype, $param_id);
 
             // Attempt to execute the prepared statement
-            if(mysqli_stmt_execute($stmt)){
+            if (mysqli_stmt_execute($stmt)) {
                 $result = mysqli_stmt_get_result($stmt);
 
-                if(mysqli_num_rows($result) == 1){
-                    /* Fetch result row as an associative array. Since the result set
-                    contains only one row, we don't need to use while loop */
+                if (mysqli_num_rows($result) == 1) {
+                    // Fetch result row as an associative array.
                     $row = mysqli_fetch_array($result, MYSQLI_ASSOC);
 
                     // Retrieve individual field value
-
                     $nombre = htmlspecialchars($row["nombre"]);
-					
 
-                } else{
+                } else {
                     // URL doesn't contain valid id. Redirect to error page
                     header("location: error.php");
                     exit();
                 }
-
-            } else{
+            } else {
                 echo "Oops! Something went wrong. Please try again later.<br>".$stmt->error;
             }
         }
@@ -89,7 +92,7 @@ if(isset($_POST["ID_carrera"]) && !empty($_POST["ID_carrera"])){
         // Close statement
         mysqli_stmt_close($stmt);
 
-    }  else{
+    }  else {
         // URL doesn't contain id parameter. Redirect to error page
         header("location: error.php");
         exit();
@@ -114,13 +117,13 @@ if(isset($_POST["ID_carrera"]) && !empty($_POST["ID_carrera"])){
                         <h2>Update Record</h2>
                     </div>
                     <p>Please edit the input values and submit to update the record.</p>
-                    <form action="<?php echo htmlspecialchars(basename($_SERVER['REQUEST_URI'])); ?>" method="post">
+                    <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="post">
 
                         <div class="form-group">
-                                <label>Carrera</label>
-                                <input type="text" name="nombre" maxlength="100"class="form-control" value="<?php echo $nombre; ?>">
-                                <span class="form-text"><?php echo $nombre_err; ?></span>
-                            </div>
+                            <label>Carrera</label>
+                            <input type="text" name="nombre" maxlength="100" class="form-control <?php echo (!empty($nombre_err)) ? 'is-invalid' : ''; ?>" value="<?php echo $nombre; ?>">
+                            <span class="invalid-feedback"><?php echo $nombre_err; ?></span>
+                        </div>
 
                         <input type="hidden" name="ID_carrera" value="<?php echo $ID_carrera; ?>"/>
                         <input type="submit" class="btn btn-primary" value="Submit">

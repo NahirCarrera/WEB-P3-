@@ -1,51 +1,3 @@
-<?php
-// Include config file
-require_once "config.php";
-require_once "helpers.php";
-
-// Define variables and initialize with empty values
-$RESERVA_AULA_ID_reserva = "";
-$fecha = "";
-$descripción = "";
-
-$RESERVA_AULA_ID_reserva_err = "";
-$fecha_err = "";
-$descripción_err = "";
-
-
-// Processing form data when form is submitted
-if($_SERVER["REQUEST_METHOD"] == "POST"){
-        $RESERVA_AULA_ID_reserva = trim($_POST["RESERVA_AULA_ID_reserva"]);
-		$fecha = trim($_POST["fecha"]);
-		$descripción = trim($_POST["descripción"]);
-		
-
-        $dsn = "mysql:host=$db_server;dbname=$db_name;charset=utf8mb4";
-        $options = [
-          PDO::ATTR_EMULATE_PREPARES   => false, // turn off emulation mode for "real" prepared statements
-          PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION, //turn on errors in the form of exceptions
-          PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC, //make the default fetch be an associative array
-        ];
-        try {
-          $pdo = new PDO($dsn, $db_user, $db_password, $options);
-        } catch (Exception $e) {
-          error_log($e->getMessage());
-          exit('Something weird happened'); //something a user can understand
-        }
-
-        $vars = parse_columns('novedades', $_POST);
-        $stmt = $pdo->prepare("INSERT INTO novedades (RESERVA_AULA_ID_reserva,fecha,descripción) VALUES (?,?,?)");
-
-        if($stmt->execute([ $RESERVA_AULA_ID_reserva,$fecha,$descripción  ])) {
-                $stmt = null;
-                header("location: novedades-index.php");
-            } else{
-                echo "Something went wrong. Please try again later.";
-            }
-
-}
-?>
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -66,35 +18,35 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
                     <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="post">
 
                         <div class="form-group">
-                                <label>Reserva</label>
-                                    <select class="form-control" id="RESERVA_AULA_ID_reserva" name="RESERVA_AULA_ID_reserva">
-                                    <?php
-                                        $sql = "SELECT *,ID_reserva FROM reserva_aula";
-                                        $result = mysqli_query($link, $sql);
-                                        while($row = mysqli_fetch_array($result, MYSQLI_ASSOC)) {
-                                            $duprow = $row;
-                                            unset($duprow["ID_reserva"]);
-                                            $value = implode(" | ", $duprow);
-                                            if ($row["ID_reserva"] == $RESERVA_AULA_ID_reserva){
-                                            echo '<option value="' . "$row[ID_reserva]" . '"selected="selected">' . "$value" . '</option>';
-                                            } else {
-                                                echo '<option value="' . "$row[ID_reserva]" . '">' . "$value" . '</option>';
-                                        }
-                                        }
-                                    ?>
-                                    </select>
-                                <span class="form-text"><?php echo $RESERVA_AULA_ID_reserva_err; ?></span>
-                            </div>
-						<div class="form-group">
-                                <label>Fecha</label>
-                                <input type="date" name="fecha" class="form-control" value="<?php echo $fecha; ?>">
-                                <span class="form-text"><?php echo $fecha_err; ?></span>
-                            </div>
-						<div class="form-group">
-                                <label>Novedad</label>
-                                <input type="text" name="descripción" maxlength="200"class="form-control" value="<?php echo $descripción; ?>">
-                                <span class="form-text"><?php echo $descripción_err; ?></span>
-                            </div>
+                            <label>Reserva</label>
+                            <select class="form-control" id="RESERVA_AULA_ID_reserva" name="RESERVA_AULA_ID_reserva" required>
+                                <?php
+                                $sql = "SELECT *,ID_reserva FROM reserva_aula";
+                                $result = mysqli_query($link, $sql);
+                                while($row = mysqli_fetch_array($result, MYSQLI_ASSOC)) {
+                                    $duprow = $row;
+                                    unset($duprow["ID_reserva"]);
+                                    $value = implode(" | ", $duprow);
+                                    if ($row["ID_reserva"] == $RESERVA_AULA_ID_reserva){
+                                        echo '<option value="' . "$row[ID_reserva]" . '"selected="selected">' . "$value" . '</option>';
+                                    } else {
+                                        echo '<option value="' . "$row[ID_reserva]" . '">' . "$value" . '</option>';
+                                    }
+                                }
+                                ?>
+                            </select>
+                            <span class="form-text"><?php echo $RESERVA_AULA_ID_reserva_err; ?></span>
+                        </div>
+                        <div class="form-group">
+                            <label>Fecha</label>
+                            <input type="date" name="fecha" class="form-control" value="<?php echo $fecha; ?>" required>
+                            <span class="form-text"><?php echo $fecha_err; ?></span>
+                        </div>
+                        <div class="form-group">
+                            <label>Novedad</label>
+                            <input type="text" name="descripción" maxlength="200" class="form-control" value="<?php echo $descripción; ?>" required>
+                            <span class="form-text"><?php echo $descripción_err; ?></span>
+                        </div>
 
                         <input type="submit" class="btn btn-primary" value="Submit">
                         <a href="novedades-index.php" class="btn btn-secondary">Cancel</a>
@@ -103,8 +55,8 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
             </div>
         </div>
     </section>
-<script src="https://code.jquery.com/jquery-3.5.1.min.js" integrity="sha256-9/aliU8dGd2tb6OSsuzixeV4y/faTqgFtohetphbbj0=" crossorigin="anonymous"></script>
-<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js" integrity="sha384-OgVRvuATP1z7JjHLkuOU7Xw704+h835Lr+6QL9UvYjZE3Ipu6Tp75j7Bh/kR0JKI" crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js" integrity="sha256-9/aliU8dGd2tb6OSsuzixeV4y/faTqgFtohetphbbj0=" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js" integrity="sha384-OgVRvuATP1z7JjHLkuOU7Xw704+h835Lr+6QL9UvYjZE3Ipu6Tp75j7Bh/kR0JKI" crossorigin="anonymous"></script>
 </body>
 </html>

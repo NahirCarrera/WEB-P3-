@@ -18,38 +18,64 @@ if(isset($_POST["ID_aula"]) && !empty($_POST["ID_aula"])){
     // Get hidden input value
     $ID_aula = $_POST["ID_aula"];
 
-    $codigo = trim($_POST["codigo"]);
-		$bloque = trim($_POST["bloque"]);
-		$piso = trim($_POST["piso"]);
-		
-
-    // Prepare an update statement
-    $dsn = "mysql:host=$db_server;dbname=$db_name;charset=utf8mb4";
-    $options = [
-        PDO::ATTR_EMULATE_PREPARES   => false, // turn off emulation mode for "real" prepared statements
-        PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION, //turn on errors in the form of exceptions
-        PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC, //make the default fetch be an associative array
-    ];
-    try {
-        $pdo = new PDO($dsn, $db_user, $db_password, $options);
-    } catch (Exception $e) {
-        error_log($e->getMessage());
-        exit('Something weird happened');
+    // Validaciones para los campos
+    if(empty(trim($_POST["codigo"]))){
+        $codigo_err = "Por favor ingresa el código del aula.";
+    } else {
+        $codigo = trim($_POST["codigo"]);
+        // Validar que el código esté dentro del rango especificado
+        if (!preg_match('/^(20[1-9]|30[1-9])$/', $codigo)) {
+            $codigo_err = "El código debe estar entre 201 y 209, o entre 301 y 309.";
+        }
     }
 
-    $vars = parse_columns('aulas', $_POST);
-    $stmt = $pdo->prepare("UPDATE aulas SET codigo=?,bloque=?,piso=? WHERE ID_aula=?");
-
-    if(!$stmt->execute([ $codigo,$bloque,$piso,$ID_aula  ])) {
-        echo "Something went wrong. Please try again later.";
-        header("location: error.php");
+    if(empty(trim($_POST["bloque"]))){
+        $bloque_err = "Por favor ingresa el bloque del aula.";
     } else {
-        $stmt = null;
-        header("location: aulas-read.php?ID_aula=$ID_aula");
+        $bloque = trim($_POST["bloque"]);
+        // Validar que el bloque sea una letra mayúscula
+        if (!preg_match('/^[A-Z]$/', $bloque)) {
+            $bloque_err = "El bloque debe ser una letra mayúscula.";
+        }
+    }
+
+    if(empty(trim($_POST["piso"]))){
+        $piso_err = "Por favor ingresa el piso del aula.";
+    } else {
+        $piso = trim($_POST["piso"]);
+        // Puedes agregar más validaciones específicas para el piso si es necesario
+    }
+
+    // Si no hay errores de validación, proceder con la actualización
+    if(empty($codigo_err) && empty($bloque_err) && empty($piso_err)) {
+        // Prepare an update statement
+        $dsn = "mysql:host=$db_server;dbname=$db_name;charset=utf8mb4";
+        $options = [
+            PDO::ATTR_EMULATE_PREPARES   => false, // turn off emulation mode for "real" prepared statements
+            PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION, //turn on errors in the form of exceptions
+            PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC, //make the default fetch be an associative array
+        ];
+        try {
+            $pdo = new PDO($dsn, $db_user, $db_password, $options);
+        } catch (Exception $e) {
+            error_log($e->getMessage());
+            exit('Something weird happened');
+        }
+
+        $vars = parse_columns('aulas', $_POST);
+        $stmt = $pdo->prepare("UPDATE aulas SET codigo=?,bloque=?,piso=? WHERE ID_aula=?");
+
+        if(!$stmt->execute([$codigo,$bloque,$piso,$ID_aula])) {
+            echo "Something went wrong. Please try again later.";
+            header("location: error.php");
+        } else {
+            $stmt = null;
+            header("location: aulas-read.php?ID_aula=$ID_aula");
+        }
     }
 } else {
     // Check existence of id parameter before processing further
-	$_GET["ID_aula"] = trim($_GET["ID_aula"]);
+    $_GET["ID_aula"] = trim($_GET["ID_aula"]);
     if(isset($_GET["ID_aula"]) && !empty($_GET["ID_aula"])){
         // Get URL parameter
         $ID_aula =  trim($_GET["ID_aula"]);
@@ -61,11 +87,11 @@ if(isset($_POST["ID_aula"]) && !empty($_POST["ID_aula"])){
             $param_id = $ID_aula;
 
             // Bind variables to the prepared statement as parameters
-			if (is_int($param_id)) $__vartype = "i";
-			elseif (is_string($param_id)) $__vartype = "s";
-			elseif (is_numeric($param_id)) $__vartype = "d";
-			else $__vartype = "b"; // blob
-			mysqli_stmt_bind_param($stmt, $__vartype, $param_id);
+            if (is_int($param_id)) $__vartype = "i";
+            elseif (is_string($param_id)) $__vartype = "s";
+            elseif (is_numeric($param_id)) $__vartype = "d";
+            else $__vartype = "b"; // blob
+            mysqli_stmt_bind_param($stmt, $__vartype, $param_id);
 
             // Attempt to execute the prepared statement
             if(mysqli_stmt_execute($stmt)){
@@ -79,10 +105,8 @@ if(isset($_POST["ID_aula"]) && !empty($_POST["ID_aula"])){
                     // Retrieve individual field value
 
                     $codigo = htmlspecialchars($row["codigo"]);
-					$bloque = htmlspecialchars($row["bloque"]);
-					$piso = htmlspecialchars($row["piso"]);
-					
-
+                    $bloque = htmlspecialchars($row["bloque"]);
+                    $piso = htmlspecialchars($row["piso"]);
                 } else{
                     // URL doesn't contain valid id. Redirect to error page
                     header("location: error.php");
@@ -125,20 +149,20 @@ if(isset($_POST["ID_aula"]) && !empty($_POST["ID_aula"])){
                     <form action="<?php echo htmlspecialchars(basename($_SERVER['REQUEST_URI'])); ?>" method="post">
 
                         <div class="form-group">
-                                <label>Aula</label>
-                                <input type="text" name="codigo" maxlength="4"class="form-control" value="<?php echo $codigo; ?>">
-                                <span class="form-text"><?php echo $codigo_err; ?></span>
-                            </div>
-						<div class="form-group">
-                                <label>Bloque</label>
-                                <input type="text" name="bloque" maxlength="1"class="form-control" value="<?php echo $bloque; ?>">
-                                <span class="form-text"><?php echo $bloque_err; ?></span>
-                            </div>
-						<div class="form-group">
-                                <label>Piso</label>
-                                <input type="number" name="piso" class="form-control" value="<?php echo $piso; ?>">
-                                <span class="form-text"><?php echo $piso_err; ?></span>
-                            </div>
+                            <label>Aula</label>
+                            <input type="text" name="codigo" maxlength="4"class="form-control" value="<?php echo $codigo; ?>">
+                            <span class="form-text"><?php echo $codigo_err; ?></span>
+                        </div>
+                        <div class="form-group">
+                            <label>Bloque</label>
+                            <input type="text" name="bloque" maxlength="1"class="form-control" value="<?php echo $bloque; ?>">
+                            <span class="form-text"><?php echo $bloque_err; ?></span>
+                        </div>
+                        <div class="form-group">
+                            <label>Piso</label>
+                            <input type="number" name="piso" class="form-control" value="<?php echo $piso; ?>">
+                            <span class="form-text"><?php echo $piso_err; ?></span>
+                        </div>
 
                         <input type="hidden" name="ID_aula" value="<?php echo $ID_aula; ?>"/>
                         <input type="submit" class="btn btn-primary" value="Submit">

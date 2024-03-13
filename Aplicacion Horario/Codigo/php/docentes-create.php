@@ -4,45 +4,65 @@ require_once "config.php";
 require_once "helpers.php";
 
 // Define variables and initialize with empty values
-$nombre = "";
-$correo = "";
-$estado = "";
-
-$nombre_err = "";
-$correo_err = "";
-$estado_err = "";
-
+$nombre = $correo = $estado = "";
+$nombre_err = $correo_err = $estado_err = "";
 
 // Processing form data when form is submitted
 if($_SERVER["REQUEST_METHOD"] == "POST"){
-        $nombre = trim($_POST["nombre"]);
-		$correo = trim($_POST["correo"]);
-		$estado = trim($_POST["estado"]);
-		
-
-        $dsn = "mysql:host=$db_server;dbname=$db_name;charset=utf8mb4";
-        $options = [
-          PDO::ATTR_EMULATE_PREPARES   => false, // turn off emulation mode for "real" prepared statements
-          PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION, //turn on errors in the form of exceptions
-          PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC, //make the default fetch be an associative array
-        ];
-        try {
-          $pdo = new PDO($dsn, $db_user, $db_password, $options);
-        } catch (Exception $e) {
-          error_log($e->getMessage());
-          exit('Something weird happened'); //something a user can understand
+    // Validate nombre
+    if(empty(trim($_POST["nombre"]))){
+        $nombre_err = "Please enter a name.";
+    } else{
+        $nombre = strtoupper(trim($_POST["nombre"]));
+        if(!preg_match("/^[a-zA-Z ]*$/", $nombre)){
+            $nombre_err = "Only letters and white space allowed.";
         }
+    }
+    
+    // Validate correo
+    if(empty(trim($_POST["correo"]))){
+        $correo_err = "Please enter an email.";
+    } else{
+        $correo = trim($_POST["correo"]);
+    }
+    
+    // Validate estado
+    if(empty(trim($_POST["estado"]))){
+        $estado_err = "Please enter a state.";
+    } else{
+        $estado = trim($_POST["estado"]);
+    }
 
-        $vars = parse_columns('docentes', $_POST);
-        $stmt = $pdo->prepare("INSERT INTO docentes (nombre,correo,estado) VALUES (?,?,?)");
-
-        if($stmt->execute([ $nombre,$correo,$estado  ])) {
-                $stmt = null;
+    // Check input errors before inserting into database
+    if(empty($nombre_err) && empty($correo_err) && empty($estado_err)){
+        // Prepare an insert statement
+        $sql = "INSERT INTO docentes (nombre, correo, estado) VALUES (?, ?, ?)";
+         
+        if($stmt = mysqli_prepare($link, $sql)){
+            // Bind variables to the prepared statement as parameters
+            mysqli_stmt_bind_param($stmt, "ssi", $param_nombre, $param_correo, $param_estado);
+            
+            // Set parameters
+            $param_nombre = $nombre;
+            $param_correo = $correo;
+            $param_estado = $estado;
+            
+            // Attempt to execute the prepared statement
+            if(mysqli_stmt_execute($stmt)){
+                // Redirect to landing page
                 header("location: docentes-index.php");
+                exit();
             } else{
                 echo "Something went wrong. Please try again later.";
             }
 
+            // Close statement
+            mysqli_stmt_close($stmt);
+        }
+    }
+    
+    // Close connection
+    mysqli_close($link);
 }
 ?>
 
@@ -67,12 +87,12 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
 
                         <div class="form-group">
                                 <label>Nombre</label>
-                                <input type="text" name="nombre" maxlength="100"class="form-control" value="<?php echo $nombre; ?>">
+                                <input type="text" name="nombre" class="form-control" value="<?php echo $nombre; ?>">
                                 <span class="form-text"><?php echo $nombre_err; ?></span>
                             </div>
 						<div class="form-group">
                                 <label>Correo</label>
-                                <input type="text" name="correo" maxlength="100"class="form-control" value="<?php echo $correo; ?>">
+                                <input type="text" name="correo" class="form-control" value="<?php echo $correo; ?>">
                                 <span class="form-text"><?php echo $correo_err; ?></span>
                             </div>
 						<div class="form-group">

@@ -12,37 +12,66 @@ $codigo_err = "";
 $bloque_err = "";
 $piso_err = "";
 
-
 // Processing form data when form is submitted
 if($_SERVER["REQUEST_METHOD"] == "POST"){
+    // Validate codigo
+    if(empty(trim($_POST["codigo"]))){
+        $codigo_err = "Por favor ingrese el código del aula.";
+    } else {
         $codigo = trim($_POST["codigo"]);
-		$bloque = trim($_POST["bloque"]);
-		$piso = trim($_POST["piso"]);
-		
+    }
 
-        $dsn = "mysql:host=$db_server;dbname=$db_name;charset=utf8mb4";
-        $options = [
-          PDO::ATTR_EMULATE_PREPARES   => false, // turn off emulation mode for "real" prepared statements
-          PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION, //turn on errors in the form of exceptions
-          PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC, //make the default fetch be an associative array
-        ];
-        try {
-          $pdo = new PDO($dsn, $db_user, $db_password, $options);
-        } catch (Exception $e) {
-          error_log($e->getMessage());
-          exit('Something weird happened'); //something a user can understand
+    // Validate bloque
+    if(empty(trim($_POST["bloque"]))){
+        $bloque_err = "Por favor ingrese el bloque.";
+    } else {
+        $bloque = trim($_POST["bloque"]);
+        // Check if the block is a single uppercase letter from A to Z
+        if(!preg_match("/^[A-Z]$/", $bloque)){
+            $bloque_err = "El bloque debe ser una letra mayúscula de la A a la Z.";
+        }
+    }
+
+    // Validate piso
+    if(empty(trim($_POST["piso"]))){
+        $piso_err = "Por favor ingrese el piso.";
+    } else {
+        $piso = trim($_POST["piso"]);
+    }
+
+    // Check if all errors are empty
+    if(empty($codigo_err) && empty($bloque_err) && empty($piso_err)){
+        // Additional validations
+        if(!(($codigo >= 201 && $codigo <= 209) || ($codigo >= 301 && $codigo <= 309))){
+            $codigo_err = "El código del aula debe estar entre 201-209 o 301-309.";
         }
 
-        $vars = parse_columns('aulas', $_POST);
-        $stmt = $pdo->prepare("INSERT INTO aulas (codigo,bloque,piso) VALUES (?,?,?)");
-
-        if($stmt->execute([ $codigo,$bloque,$piso  ])) {
-                $stmt = null;
-                header("location: aulas-index.php");
-            } else{
-                echo "Something went wrong. Please try again later.";
+        // Processing data after validation
+        if(empty($codigo_err)){
+            $dsn = "mysql:host=$db_server;dbname=$db_name;charset=utf8mb4";
+            $options = [
+                PDO::ATTR_EMULATE_PREPARES   => false,
+                PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
+                PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+            ];
+            try {
+                $pdo = new PDO($dsn, $db_user, $db_password, $options);
+            } catch (Exception $e) {
+                error_log($e->getMessage());
+                exit('Something weird happened');
             }
 
+            $vars = parse_columns('aulas', $_POST);
+            $stmt = $pdo->prepare("INSERT INTO aulas (codigo,bloque,piso) VALUES (?,?,?)");
+
+            if($stmt->execute([$codigo, $bloque, $piso])) {
+                $stmt = null;
+                header("location: aulas-index.php");
+            } else {
+                echo "Algo salió mal. Por favor, inténtelo de nuevo más tarde.";
+            }
+        }
+    }
 }
 ?>
 

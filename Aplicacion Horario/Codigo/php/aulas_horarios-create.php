@@ -17,12 +17,24 @@ $dia_err = "";
 
 // Processing form data when form is submitted
 if($_SERVER["REQUEST_METHOD"] == "POST"){
-        $HORARIOS_DISPONIBLES_ID_horario_disponible = trim($_POST["HORARIOS_DISPONIBLES_ID_horario_disponible"]);
-		$AULAS_DISPONIBLES_ID_aula_disponible = trim($_POST["AULAS_DISPONIBLES_ID_aula_disponible"]);
-		$estado = trim($_POST["estado"]);
-		$dia = trim($_POST["dia"]);
-		
+    $HORARIOS_DISPONIBLES_ID_horario_disponible = trim($_POST["HORARIOS_DISPONIBLES_ID_horario_disponible"]);
+    $AULAS_DISPONIBLES_ID_aula_disponible = trim($_POST["AULAS_DISPONIBLES_ID_aula_disponible"]);
+    $estado = trim($_POST["estado"]);
+    $dia = trim($_POST["dia"]);
 
+    // Validate dia
+    if(empty($dia)){
+        $dia_err = "Por favor ingrese el día.";
+    } else {
+        // Check if the entered value is a valid weekday (from Monday to Friday)
+        $dia_lowercase = strtolower($dia);
+        if(!in_array($dia_lowercase, array('lunes', 'martes', 'miércoles', 'jueves', 'viernes'))) {
+            $dia_err = "El día debe ser un día de la semana (lunes a viernes).";
+        }
+    }
+
+    // Check if all errors are empty
+    if(empty($HORARIOS_DISPONIBLES_ID_horario_disponible_err) && empty($AULAS_DISPONIBLES_ID_aula_disponible_err) && empty($estado_err) && empty($dia_err)){
         $dsn = "mysql:host=$db_server;dbname=$db_name;charset=utf8mb4";
         $options = [
           PDO::ATTR_EMULATE_PREPARES   => false, // turn off emulation mode for "real" prepared statements
@@ -39,15 +51,16 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
         $vars = parse_columns('aulas_horarios', $_POST);
         $stmt = $pdo->prepare("INSERT INTO aulas_horarios (HORARIOS_DISPONIBLES_ID_horario_disponible,AULAS_DISPONIBLES_ID_aula_disponible,estado,dia) VALUES (?,?,?,?)");
 
-        if($stmt->execute([ $HORARIOS_DISPONIBLES_ID_horario_disponible,$AULAS_DISPONIBLES_ID_aula_disponible,$estado,$dia  ])) {
-                $stmt = null;
-                header("location: aulas_horarios-index.php");
-            } else{
-                echo "Something went wrong. Please try again later.";
-            }
-
+        if($stmt->execute([$HORARIOS_DISPONIBLES_ID_horario_disponible,$AULAS_DISPONIBLES_ID_aula_disponible,$estado,$dia])) {
+            $stmt = null;
+            header("location: aulas_horarios-index.php");
+        } else{
+            echo "Something went wrong. Please try again later.";
+        }
+    }
 }
 ?>
+
 
 <!DOCTYPE html>
 <html lang="en">

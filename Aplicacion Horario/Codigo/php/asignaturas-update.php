@@ -4,7 +4,6 @@ require_once "config.php";
 require_once "helpers.php";
 
 // Define variables and initialize with empty values
-
 $DEPARTAMENTOS_ID_departamento = "";
 $codigo = "";
 $nombre = "";
@@ -13,95 +12,72 @@ $DEPARTAMENTOS_ID_departamento_err = "";
 $codigo_err = "";
 $nombre_err = "";
 
+// Define una función para validar el formato del código
+function validar_codigo($codigo) {
+    // Verifica si el código tiene el formato adecuado (A seguido de 4 números)
+    return preg_match('/^[A-Z]\d{4}$/', $codigo);
+}
+
+// Define una función para validar que la asignatura solo contenga letras mayúsculas
+function validar_asignatura($nombre) {
+    // Verifica si la asignatura contiene solo letras mayúsculas
+    return ctype_upper($nombre);
+}
 
 // Processing form data when form is submitted
-if(isset($_POST["ID_asignatura"]) && !empty($_POST["ID_asignatura"])){
-    // Get hidden input value
-    $ID_asignatura = $_POST["ID_asignatura"];
-
-    $DEPARTAMENTOS_ID_departamento = trim($_POST["DEPARTAMENTOS_ID_departamento"]);
-		$codigo = trim($_POST["codigo"]);
-		$nombre = trim($_POST["nombre"]);
-		
-
-    // Prepare an update statement
-    $dsn = "mysql:host=$db_server;dbname=$db_name;charset=utf8mb4";
-    $options = [
-        PDO::ATTR_EMULATE_PREPARES   => false, // turn off emulation mode for "real" prepared statements
-        PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION, //turn on errors in the form of exceptions
-        PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC, //make the default fetch be an associative array
-    ];
-    try {
-        $pdo = new PDO($dsn, $db_user, $db_password, $options);
-    } catch (Exception $e) {
-        error_log($e->getMessage());
-        exit('Something weird happened');
-    }
-
-    $vars = parse_columns('asignaturas', $_POST);
-    $stmt = $pdo->prepare("UPDATE asignaturas SET DEPARTAMENTOS_ID_departamento=?,codigo=?,nombre=? WHERE ID_asignatura=?");
-
-    if(!$stmt->execute([ $DEPARTAMENTOS_ID_departamento,$codigo,$nombre,$ID_asignatura])) {
-        echo "Something went wrong. Please try again later.";
-        header("location: error.php");
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    // Valida que todos los campos estén llenos
+    if (empty(trim($_POST["DEPARTAMENTOS_ID_departamento"]))) {
+        $DEPARTAMENTOS_ID_departamento_err = "Por favor seleccione un departamento.";
     } else {
-        $stmt = null;
-        header("location: asignaturas-read.php?ID_asignatura=$ID_asignatura");
+        $DEPARTAMENTOS_ID_departamento = trim($_POST["DEPARTAMENTOS_ID_departamento"]);
     }
-} else {
-    // Check existence of id parameter before processing further
-	$_GET["ID_asignatura"] = trim($_GET["ID_asignatura"]);
-    if(isset($_GET["ID_asignatura"]) && !empty($_GET["ID_asignatura"])){
-        // Get URL parameter
-        $ID_asignatura =  trim($_GET["ID_asignatura"]);
 
-        // Prepare a select statement
-        $sql = "SELECT * FROM asignaturas WHERE ID_asignatura = ?";
-        if($stmt = mysqli_prepare($link, $sql)){
-            // Set parameters
-            $param_id = $ID_asignatura;
+    if (empty(trim($_POST["codigo"]))) {
+        $codigo_err = "Por favor ingrese el código.";
+    } else {
+        $codigo = trim($_POST["codigo"]);
+        // Validar el formato del código
+        if (!validar_codigo($codigo)) {
+            $codigo_err = "El código debe tener el formato A seguido de 4 números.";
+        }
+    }
 
-            // Bind variables to the prepared statement as parameters
-			if (is_int($param_id)) $__vartype = "i";
-			elseif (is_string($param_id)) $__vartype = "s";
-			elseif (is_numeric($param_id)) $__vartype = "d";
-			else $__vartype = "b"; // blob
-			mysqli_stmt_bind_param($stmt, $__vartype, $param_id);
+    if (empty(trim($_POST["nombre"]))) {
+        $nombre_err = "Por favor ingrese el nombre de la asignatura.";
+    } else {
+        $nombre = trim($_POST["nombre"]);
+        // Validar que la asignatura solo contenga letras mayúsculas
+        if (!validar_asignatura($nombre)) {
+            $nombre_err = "El nombre de la asignatura debe contener solo letras mayúsculas.";
+        }
+    }
 
-            // Attempt to execute the prepared statement
-            if(mysqli_stmt_execute($stmt)){
-                $result = mysqli_stmt_get_result($stmt);
-
-                if(mysqli_num_rows($result) == 1){
-                    /* Fetch result row as an associative array. Since the result set
-                    contains only one row, we don't need to use while loop */
-                    $row = mysqli_fetch_array($result, MYSQLI_ASSOC);
-
-                    // Retrieve individual field value
-
-                    $DEPARTAMENTOS_ID_departamento = htmlspecialchars($row["DEPARTAMENTOS_ID_departamento"]);
-					$codigo = htmlspecialchars($row["codigo"]);
-					$nombre = htmlspecialchars($row["nombre"]);
-					
-
-                } else{
-                    // URL doesn't contain valid id. Redirect to error page
-                    header("location: error.php");
-                    exit();
-                }
-
-            } else{
-                echo "Oops! Something went wrong. Please try again later.<br>".$stmt->error;
-            }
+    // Verifica si hay errores en cualquier campo
+    if (empty($DEPARTAMENTOS_ID_departamento_err) && empty($codigo_err) && empty($nombre_err)) {
+        // Si no hay errores, procede a insertar los datos en la base de datos
+        $dsn = "mysql:host=$db_server;dbname=$db_name;charset=utf8mb4";
+        $options = [
+          PDO::ATTR_EMULATE_PREPARES   => false, // turn off emulation mode for "real" prepared statements
+          PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION, //turn on errors in the form of exceptions
+          PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC, //make the default fetch be an associative array
+        ];
+        try {
+          $pdo = new PDO($dsn, $db_user, $db_password, $options);
+        } catch (Exception $e) {
+          error_log($e->getMessage());
+          exit('Something weird happened'); //something a user can understand
         }
 
-        // Close statement
-        mysqli_stmt_close($stmt);
+        $vars = parse_columns('asignaturas', $_POST);
+        $stmt = $pdo->prepare("INSERT INTO asignaturas (DEPARTAMENTOS_ID_departamento,codigo,nombre) VALUES (?,?,?)");
 
-    }  else{
-        // URL doesn't contain id parameter. Redirect to error page
-        header("location: error.php");
-        exit();
+        if($stmt->execute([ $DEPARTAMENTOS_ID_departamento,$codigo,$nombre  ])) {
+            $stmt = null;
+            header("location: asignaturas-index.php");
+        } else{
+            echo "Something went wrong. Please try again later.";
+        }
     }
 }
 ?>
@@ -126,37 +102,38 @@ if(isset($_POST["ID_asignatura"]) && !empty($_POST["ID_asignatura"])){
                     <form action="<?php echo htmlspecialchars(basename($_SERVER['REQUEST_URI'])); ?>" method="post">
 
                         <div class="form-group">
-                                <label>Departamento</label>
-                                    <select class="form-control" id="DEPARTAMENTOS_ID_departamento" name="DEPARTAMENTOS_ID_departamento">
-                                    <?php
-                                        $sql = "SELECT ID_departamento, codigo, nombre FROM departamentos";
-                                        $result = mysqli_query($link, $sql);
-                                        while($row = mysqli_fetch_array($result, MYSQLI_ASSOC)) {
-                                            $duprow = $row;
-                                            unset($duprow["ID_departamento"]);
-                                            $value = implode("  ", $duprow);
-                                            if ($row["ID_departamento"] == $DEPARTAMENTOS_ID_departamento){
+                            <label>Departamento</label>
+                            <select class="form-control" id="DEPARTAMENTOS_ID_departamento" name="DEPARTAMENTOS_ID_departamento">
+                                <?php
+                                    $sql = "SELECT ID_departamento, codigo, nombre FROM departamentos";
+                                    $result = mysqli_query($link, $sql);
+                                    while($row = mysqli_fetch_array($result, MYSQLI_ASSOC)) {
+                                        $duprow = $row;
+                                        unset($duprow["ID_departamento"]);
+                                        $value = implode("  ", $duprow);
+                                        if ($row["ID_departamento"] == $DEPARTAMENTOS_ID_departamento){
                                             echo '<option value="' . "$row[ID_departamento]" . '"selected="selected">' . "$value" . '</option>';
-                                            } else {
-                                                echo '<option value="' . "$row[ID_departamento]" . '">' . "$value" . '</option>';
+                                        } else {
+                                            echo '<option value="' . "$row[ID_departamento]" . '">' . "$value" . '</option>';
                                         }
-                                        }
-                                    ?>
-                                    </select>
-                                <span class="form-text"><?php echo $DEPARTAMENTOS_ID_departamento_err; ?></span>
-                            </div>
-						<div class="form-group">
-                                <label>Código</label>
-                                <input type="text" name="codigo" maxlength="10"class="form-control" value="<?php echo $codigo; ?>">
-                                <span class="form-text"><?php echo $codigo_err; ?></span>
-                            </div>
-						<div class="form-group">
-                                <label>Asignatura</label>
-                                <input type="text" name="nombre" maxlength="100"class="form-control" value="<?php echo $nombre; ?>">
-                                <span class="form-text"><?php echo $nombre_err; ?></span>
-                            </div>
+                                    }
+                                ?>
+                            </select>
+                            <span class="form-text"><?php echo $DEPARTAMENTOS_ID_departamento_err; ?></span>
+                        </div>
 
-                        <input type="hidden" name="ID_asignatura" value="<?php echo $ID_asignatura; ?>"/>
+                        <div class="form-group">
+                            <label>Código</label>
+                            <input type="text" name="codigo" maxlength="10" class="form-control" value="<?php echo $codigo; ?>">
+                            <span class="form-text"><?php echo $codigo_err; ?></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Asignatura</label>
+                            <input type="text" name="nombre" maxlength="100" class="form-control" value="<?php echo $nombre; ?>">
+                            <span class="form-text"><?php echo $nombre_err; ?></span>
+                        </div>
+
                         <input type="submit" class="btn btn-primary" value="Submit">
                         <a href="asignaturas-index.php" class="btn btn-secondary">Cancel</a>
                     </form>
