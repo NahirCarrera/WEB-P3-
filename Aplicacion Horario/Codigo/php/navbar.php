@@ -82,6 +82,7 @@ $(document).ready(function(){
     $(this).addClass("active").siblings().removeClass("active");
     $("#periodDropdownMenu").removeClass("show"); // Cerrar el menú desplegable de períodos
     $("#periodDropdownMenu").css("display", "none"); // Cambiar el estilo a display: none
+    
   });
 
   // Manejar clic en elemento del menú desplegable de páginas

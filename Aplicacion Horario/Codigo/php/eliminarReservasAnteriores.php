@@ -35,14 +35,36 @@ if ($queryEliminarReservasEspecificas->execute()) {
 } else {
     echo json_encode(['success' => false, 'message' => 'Error al eliminar reservas específicas']);
 }*/
+// Primero, encontrar el ID de periodo activo 
+$queryBuscarPeriodo = $link->prepare("SELECT ID_periodo FROM periodos WHERE estado = 1");
+
+$queryBuscarPeriodo->execute();
+$resultadoPeriodo = $queryBuscarPeriodo->get_result();
+
+if ($resultadoPeriodo->num_rows == 0) {
+    echo json_encode(['success' => false, 'message' => "No se encontró el periodo activo."]);
+    exit;
+}
+
+$filaPeriodo = $resultadoPeriodo->fetch_assoc();
+$ID_periodo = $filaPeriodo['ID_periodo'];
+
 
 // Eliminar reservas anteriores que coincidan con el NRC, aula y horario dados
 $queryEliminarNovedades = $link->prepare("
-    TRUNCATE TABLE novedades;
+   DELETE FROM novedades
+WHERE RESERVA_AULA_ID_reserva IN (
+    SELECT ra.ID_reserva
+    FROM nrcs n
+    INNER JOIN reserva_aula ra ON ra.NRCS_ID_NRC = n.ID_NRC
+    WHERE n.PERIODOS_ID_periodo = $ID_periodo
+)
+);
+
 
 ");
 
-$queryEliminarNovedades->bind_param("i", $nrcID);
+$queryEliminarNovedades->bind_param("i", $ID_periodo);
 
 if ($queryEliminarNovedades->execute()) {
     echo json_encode(['success' => true, 'message' => 'Novedades eliminadas con éxito']);
@@ -52,7 +74,13 @@ if ($queryEliminarNovedades->execute()) {
 
 // Eliminar reservas anteriores que coincidan con el NRC, aula y horario dados
 $queryEliminarReservasEspecificas = $link->prepare("
-   DELETE FROM reserva_aula;
+ DELETE FROM reserva_aula
+WHERE NRCS_ID_NRC IN (
+    SELECT n.ID_NRC
+    FROM nrcs n
+    WHERE n.PERIODOS_ID_periodo = $ID_periodo
+);
+
 ");
 
 $queryEliminarReservasEspecificas->bind_param("i", $nrcID);

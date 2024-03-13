@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: localhost
--- Tiempo de generación: 12-03-2024 a las 03:36:47
+-- Tiempo de generación: 13-03-2024 a las 11:39:35
 -- Versión del servidor: 8.0.17
 -- Versión de PHP: 7.3.10
 
@@ -135,86 +135,86 @@ CREATE TABLE `aulas_horarios` (
 --
 
 INSERT INTO `aulas_horarios` (`ID_aulas_horarios`, `HORARIOS_DISPONIBLES_ID_horario_disponible`, `AULAS_DISPONIBLES_ID_aula_disponible`, `estado`, `dia`) VALUES
-(226, 1, 3, 0, 'Lunes'),
-(227, 1, 3, 0, 'Martes'),
-(228, 1, 3, 0, 'Miércoles'),
-(229, 1, 3, 0, 'Jueves'),
-(230, 1, 3, 0, 'Viernes'),
-(231, 2, 3, 0, 'Lunes'),
-(232, 2, 3, 0, 'Martes'),
-(233, 2, 3, 0, 'Miércoles'),
-(234, 2, 3, 0, 'Jueves'),
-(235, 2, 3, 0, 'Viernes'),
-(236, 3, 3, 0, 'Lunes'),
-(237, 3, 3, 0, 'Martes'),
-(238, 3, 3, 0, 'Miércoles'),
-(239, 3, 3, 0, 'Jueves'),
-(240, 3, 3, 0, 'Viernes'),
-(241, 8, 3, 0, 'Lunes'),
-(242, 8, 3, 0, 'Martes'),
-(243, 8, 3, 0, 'Miércoles'),
-(244, 8, 3, 0, 'Jueves'),
-(245, 8, 3, 0, 'Viernes'),
-(246, 1, 5, 0, 'Lunes'),
-(247, 1, 5, 0, 'Martes'),
-(248, 1, 5, 0, 'Miércoles'),
-(249, 1, 5, 0, 'Jueves'),
-(250, 1, 5, 0, 'Viernes'),
-(251, 2, 5, 0, 'Lunes'),
-(252, 2, 5, 0, 'Martes'),
-(253, 2, 5, 0, 'Miércoles'),
-(254, 2, 5, 0, 'Jueves'),
-(255, 2, 5, 0, 'Viernes'),
-(256, 3, 5, 0, 'Lunes'),
-(257, 3, 5, 0, 'Martes'),
-(258, 3, 5, 0, 'Miércoles'),
-(259, 3, 5, 0, 'Jueves'),
-(260, 3, 5, 0, 'Viernes'),
-(261, 8, 5, 0, 'Lunes'),
-(262, 8, 5, 0, 'Martes'),
-(263, 8, 5, 0, 'Miércoles'),
-(264, 8, 5, 0, 'Jueves'),
-(265, 8, 5, 0, 'Viernes'),
-(266, 1, 7, 0, 'Lunes'),
-(267, 1, 7, 0, 'Martes'),
-(268, 1, 7, 0, 'Miércoles'),
-(269, 1, 7, 0, 'Jueves'),
-(270, 1, 7, 0, 'Viernes'),
-(271, 2, 7, 0, 'Lunes'),
-(272, 2, 7, 0, 'Martes'),
-(273, 2, 7, 0, 'Miércoles'),
-(274, 2, 7, 0, 'Jueves'),
-(275, 2, 7, 0, 'Viernes'),
-(276, 3, 7, 0, 'Lunes'),
-(277, 3, 7, 0, 'Martes'),
-(278, 3, 7, 0, 'Miércoles'),
-(279, 3, 7, 0, 'Jueves'),
-(280, 3, 7, 0, 'Viernes'),
-(281, 8, 7, 0, 'Lunes'),
-(282, 8, 7, 0, 'Martes'),
-(283, 8, 7, 0, 'Miércoles'),
-(284, 8, 7, 0, 'Jueves'),
-(285, 8, 7, 0, 'Viernes'),
-(286, 1, 9, 0, 'Lunes'),
-(287, 1, 9, 0, 'Martes'),
-(288, 1, 9, 0, 'Miércoles'),
-(289, 1, 9, 0, 'Jueves'),
-(290, 1, 9, 0, 'Viernes'),
-(291, 2, 9, 0, 'Lunes'),
-(292, 2, 9, 0, 'Martes'),
-(293, 2, 9, 0, 'Miércoles'),
-(294, 2, 9, 0, 'Jueves'),
-(295, 2, 9, 0, 'Viernes'),
-(296, 3, 9, 0, 'Lunes'),
-(297, 3, 9, 0, 'Martes'),
-(298, 3, 9, 0, 'Miércoles'),
-(299, 3, 9, 0, 'Jueves'),
-(300, 3, 9, 0, 'Viernes'),
-(301, 8, 9, 0, 'Lunes'),
-(302, 8, 9, 0, 'Martes'),
-(303, 8, 9, 0, 'Miércoles'),
-(304, 8, 9, 0, 'Jueves'),
-(305, 8, 9, 0, 'Viernes');
+(101, 1, 3, 0, 'Lunes'),
+(102, 2, 3, 0, 'Lunes'),
+(103, 3, 3, 0, 'Lunes'),
+(104, 8, 3, 0, 'Lunes'),
+(111, 1, 3, 0, 'Martes'),
+(112, 2, 3, 0, 'Martes'),
+(113, 3, 3, 0, 'Martes'),
+(114, 8, 3, 0, 'Martes'),
+(121, 1, 3, 0, 'Miércoles'),
+(122, 2, 3, 0, 'Miércoles'),
+(123, 3, 3, 0, 'Miércoles'),
+(124, 8, 3, 0, 'Miércoles'),
+(131, 1, 3, 0, 'Jueves'),
+(132, 2, 3, 0, 'Jueves'),
+(133, 3, 3, 0, 'Jueves'),
+(134, 8, 3, 0, 'Jueves'),
+(141, 1, 3, 0, 'Viernes'),
+(142, 2, 3, 0, 'Viernes'),
+(143, 3, 3, 0, 'Viernes'),
+(144, 8, 3, 0, 'Viernes'),
+(201, 1, 5, 0, 'Lunes'),
+(202, 2, 5, 0, 'Lunes'),
+(203, 3, 5, 0, 'Lunes'),
+(204, 8, 5, 0, 'Lunes'),
+(211, 1, 5, 0, 'Martes'),
+(212, 2, 5, 0, 'Martes'),
+(213, 3, 5, 0, 'Martes'),
+(214, 8, 5, 0, 'Martes'),
+(221, 1, 5, 0, 'Miércoles'),
+(222, 2, 5, 0, 'Miércoles'),
+(223, 3, 5, 0, 'Miércoles'),
+(224, 8, 5, 0, 'Miércoles'),
+(231, 1, 5, 0, 'Jueves'),
+(232, 2, 5, 0, 'Jueves'),
+(233, 3, 5, 0, 'Jueves'),
+(234, 8, 5, 0, 'Jueves'),
+(241, 1, 5, 0, 'Viernes'),
+(242, 2, 5, 0, 'Viernes'),
+(243, 3, 5, 0, 'Viernes'),
+(244, 8, 5, 0, 'Viernes'),
+(301, 1, 7, 0, 'Lunes'),
+(302, 2, 7, 0, 'Lunes'),
+(303, 3, 7, 0, 'Lunes'),
+(304, 8, 7, 0, 'Lunes'),
+(311, 1, 7, 0, 'Martes'),
+(312, 2, 7, 0, 'Martes'),
+(313, 3, 7, 0, 'Martes'),
+(314, 8, 7, 0, 'Martes'),
+(321, 1, 7, 0, 'Miércoles'),
+(322, 2, 7, 0, 'Miércoles'),
+(323, 3, 7, 0, 'Miércoles'),
+(324, 8, 7, 0, 'Miércoles'),
+(331, 1, 7, 0, 'Jueves'),
+(332, 2, 7, 0, 'Jueves'),
+(333, 3, 7, 0, 'Jueves'),
+(334, 8, 7, 0, 'Jueves'),
+(341, 1, 7, 0, 'Viernes'),
+(342, 2, 7, 0, 'Viernes'),
+(343, 3, 7, 0, 'Viernes'),
+(344, 8, 7, 0, 'Viernes'),
+(401, 1, 9, 0, 'Lunes'),
+(402, 2, 9, 0, 'Lunes'),
+(403, 3, 9, 0, 'Lunes'),
+(404, 8, 9, 0, 'Lunes'),
+(411, 1, 9, 0, 'Martes'),
+(412, 2, 9, 0, 'Martes'),
+(413, 3, 9, 0, 'Martes'),
+(414, 8, 9, 0, 'Martes'),
+(421, 1, 9, 0, 'Miércoles'),
+(422, 2, 9, 0, 'Miércoles'),
+(423, 3, 9, 0, 'Miércoles'),
+(424, 8, 9, 0, 'Miércoles'),
+(431, 1, 9, 0, 'Jueves'),
+(432, 2, 9, 0, 'Jueves'),
+(433, 3, 9, 0, 'Jueves'),
+(434, 8, 9, 0, 'Jueves'),
+(441, 1, 9, 0, 'Viernes'),
+(442, 2, 9, 0, 'Viernes'),
+(443, 3, 9, 0, 'Viernes'),
+(444, 8, 9, 0, 'Viernes');
 
 -- --------------------------------------------------------
 
@@ -383,13 +383,6 @@ CREATE TABLE `novedades` (
   `descripción` varchar(200) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
---
--- Volcado de datos para la tabla `novedades`
---
-
-INSERT INTO `novedades` (`ID_novedad`, `RESERVA_AULA_ID_reserva`, `fecha`, `descripción`) VALUES
-(1, 24, '2024-03-11', 'Computador dañado');
-
 -- --------------------------------------------------------
 
 --
@@ -449,16 +442,17 @@ CREATE TABLE `periodos` (
   `codigo` varchar(6) DEFAULT NULL,
   `nombre` varchar(45) DEFAULT NULL,
   `fecha_inicio` date DEFAULT NULL,
-  `fecha_fin` date DEFAULT NULL
+  `fecha_fin` date DEFAULT NULL,
+  `estado` int(11) NOT NULL DEFAULT '0'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 --
 -- Volcado de datos para la tabla `periodos`
 --
 
-INSERT INTO `periodos` (`ID_periodo`, `codigo`, `nombre`, `fecha_inicio`, `fecha_fin`) VALUES
-(1, '202351', 'PREGRADO SII - OCT23 MAR24', '2023-10-06', '2024-03-08'),
-(2, '202450', 'PREGRADO SI - ABR24 SEP24', '2024-04-15', '2024-09-06');
+INSERT INTO `periodos` (`ID_periodo`, `codigo`, `nombre`, `fecha_inicio`, `fecha_fin`, `estado`) VALUES
+(1, '202351', 'PREGRADO SII - OCT23 MAR24', '2023-10-06', '2024-03-08', 1),
+(2, '202450', 'PREGRADO SI - ABR24 SEP24', '2024-04-15', '2024-09-06', 0);
 
 -- --------------------------------------------------------
 
@@ -477,29 +471,10 @@ CREATE TABLE `reserva_aula` (
 --
 
 INSERT INTO `reserva_aula` (`ID_reserva`, `NRCS_ID_NRC`, `AULAS_HORARIOS_ID_aulas_horarios`) VALUES
-(24, 1, 226),
-(25, 1, 228),
-(26, 1, 230),
-(36, 1, 236),
-(37, 1, 238),
-(38, 1, 240),
-(34, 4, 227),
-(35, 4, 229),
-(39, 4, 227),
-(40, 4, 229),
-(21, 7, 231),
-(22, 7, 233),
-(23, 7, 235),
-(27, 7, 226),
-(28, 7, 228),
-(29, 7, 230),
-(41, 7, 246),
-(42, 7, 248),
-(43, 7, 250),
-(30, 9, 231),
-(31, 9, 232),
-(32, 9, 233),
-(33, 9, 234);
+(194, 8, 103),
+(195, 8, 113),
+(196, 8, 123),
+(197, 8, 133);
 
 -- --------------------------------------------------------
 
@@ -520,8 +495,7 @@ CREATE TABLE `usuarios` (
 
 INSERT INTO `usuarios` (`ID_usuario`, `nombre`, `contraseña`, `PERFILES_ID_perfil`) VALUES
 (1, 'ndcarrera2', 'Abcd1234', 1),
-(2, 'admin', '$2y$10$KQOQOvHk.j/U6e90Y5./GunAo4PRJXSMYvViz/bKF.LxaOepQb9R2', 1),
-(4, 'pepe', '$2y$10$fbOdz.4u53zWv.O8nn5Dael9IxRx3ld169T8JhyAKgp8oWSkp8k66', 1);
+(2, 'admin', '$2y$10$KQOQOvHk.j/U6e90Y5./GunAo4PRJXSMYvViz/bKF.LxaOepQb9R2', 1);
 
 --
 -- Índices para tablas volcadas
@@ -689,7 +663,7 @@ ALTER TABLE `aulas_disponibles`
 -- AUTO_INCREMENT de la tabla `aulas_horarios`
 --
 ALTER TABLE `aulas_horarios`
-  MODIFY `ID_aulas_horarios` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=306;
+  MODIFY `ID_aulas_horarios` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=445;
 
 --
 -- AUTO_INCREMENT de la tabla `carreras`
@@ -737,7 +711,7 @@ ALTER TABLE `horarios_disponibles`
 -- AUTO_INCREMENT de la tabla `novedades`
 --
 ALTER TABLE `novedades`
-  MODIFY `ID_novedad` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `ID_novedad` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT de la tabla `nrcs`
@@ -761,13 +735,13 @@ ALTER TABLE `periodos`
 -- AUTO_INCREMENT de la tabla `reserva_aula`
 --
 ALTER TABLE `reserva_aula`
-  MODIFY `ID_reserva` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=44;
+  MODIFY `ID_reserva` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=201;
 
 --
 -- AUTO_INCREMENT de la tabla `usuarios`
 --
 ALTER TABLE `usuarios`
-  MODIFY `ID_usuario` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `ID_usuario` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- Restricciones para tablas volcadas
